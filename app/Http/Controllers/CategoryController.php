@@ -10,7 +10,7 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $categories = Category::with('products')->get();
+        $categories = Category::all();
         return response()->json($categories);
     }
 
@@ -60,8 +60,7 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
         }
-
-        // Cek apakah ada produk yang masih menggunakan kategori ini
+        
         if ($category->products()->count() > 0) {
             return response()->json(['message' => 'Category cannot be deleted, it has associated products'], 400);
         }

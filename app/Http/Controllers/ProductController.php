@@ -23,14 +23,13 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        // Simpan data ke database
         $product = Product::create([
             'name' => $request->name,
             'price' => $request->price,
             'stock' => $request->stock,
             'category_id' => $request->category_id, // Masukkan ke kategori Elektronik
         ]);
-        
+
         return response()->json(['message' => 'Product created successfully', 'data' => $product], 201);
     }
 
