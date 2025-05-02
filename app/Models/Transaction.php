@@ -27,4 +27,9 @@ class Transaction extends Model
     {
         return $this->hasMany(DetailTransaction::class, 'transaction_id');
     }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
 }

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('sales_reports', function (Blueprint $table) {
             $table->id();
-            $table->date('report_date');
-            $table->integer('total_transactions');
+            $table->foreignId('admin_id')->constrained()->onDelete('cascade');
+            $table->string('period');
             $table->decimal('total_sales', 10, 2);
+            $table->decimal('total_revenue', 10, 2);
             $table->timestamps();
         });
 

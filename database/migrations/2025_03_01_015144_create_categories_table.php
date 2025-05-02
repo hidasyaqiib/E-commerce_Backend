@@ -4,15 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
+            $table->unsignedBigInteger('admin_id')->after('id');
             $table->id();
+            $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
             $table->string('name');
             $table->timestamps();
         });
@@ -21,9 +22,11 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::table('categories', function (Blueprint $table) {
+            $table->dropColumn('admin_id');
+        });
     }
 };
 

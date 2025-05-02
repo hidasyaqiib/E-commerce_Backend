@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\AuthCustomerService;
 use App\Services\CustomerService;
+use Illuminate\Support\Facades\Auth;
 
 class AuthCustomerController extends Controller
 {
@@ -21,7 +22,7 @@ class AuthCustomerController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
+            'email' => 'required|email|unique:users,email', // <- validasi ke tabel users
             'phone' => 'required|string|max:15',
             'address' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
@@ -31,6 +32,7 @@ class AuthCustomerController extends Controller
 
         return response()->json([
             'message' => 'Customer registered successfully',
+            'user' => $result['user'],
             'customer' => $result['customer'],
             'token' => $result['token'],
         ], 201);
@@ -47,6 +49,7 @@ class AuthCustomerController extends Controller
 
         return response()->json([
             'message' => 'Login successful',
+            'user' => $result['user'],
             'customer' => $result['customer'],
             'token' => $result['token'],
         ]);
@@ -54,20 +57,26 @@ class AuthCustomerController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $customer = auth()->user();
+        $user = auth()->user();
+        $customer = $user->customer;
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:customers,email,' . $customer->id,
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'phone' => 'sometimes|string|max:15',
             'address' => 'sometimes|string',
         ]);
 
-        $customer->update($request->only(['name', 'email', 'phone', 'address']));
+        // Update data user
+        $user->update($request->only('email'));
+
+        // Update data customer
+        $customer->update($request->only('name', 'phone', 'address'));
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'customer' => $customer
+            'user' => $user,
+            'customer' => $customer,
         ]);
     }
 
@@ -80,9 +89,13 @@ class AuthCustomerController extends Controller
 
     public function profile(Request $request)
     {
-        $customer = $this->customerService->findById(auth()->id());
+        $user = auth()->user();
+        $customer = $user->customer;
 
-        return response()->json($customer);
+        return response()->json([
+            'user' => $user,
+            'customer' => $customer,
+            'role' => $user->getRoleNames()
+        ]);
     }
-
 }

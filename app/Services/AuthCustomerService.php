@@ -2,35 +2,54 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\Customer;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 
 class AuthCustomerService
 {
     public function register(array $data)
     {
-        $data['password'] = Hash::make($data['password']);
-        $customer = Customer::create($data);
-        $token = $customer->createToken('customer-token')->plainTextToken;
+        // 1. Buat user baru
+        $user = User::create([
+            'name' => $data['name'], // Optional
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
+
+        // 2. Beri role customer
+        $user->assignRole('customer');
+
+        // 3. Buat data customer dan hubungkan ke user
+        $customer = $user->customer()->create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'address' => $data['address'],
+        ]);
+
+        // 4. Buat token
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
+            'user' => $user,
             'customer' => $customer,
             'token' => $token,
         ];
     }
 
-    public function login(string $email, string $password)
+    public function login($email, $password)
     {
-        $customer = Customer::where('email', $email)->first();
-
-        if (!$customer || !Hash::check($password, $customer->password)) {
-            throw ValidationException::withMessages(['email' => 'Invalid credentials.']);
+        if (!Auth::attempt(['email' => $email, 'password' => $password])) {
+            abort(401, 'Invalid login credentials');
         }
 
-        $token = $customer->createToken('customer-token')->plainTextToken;
+        $user = Auth::user();
+        $customer = $user->customer;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
+            'user' => $user,
             'customer' => $customer,
             'token' => $token,
         ];
@@ -38,6 +57,6 @@ class AuthCustomerService
 
     public function logout($user)
     {
-        $user->currentAccessToken()->delete();
+        $user->tokens()->delete();
     }
 }

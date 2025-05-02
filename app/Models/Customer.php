@@ -27,4 +27,9 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Transaction::class, 'customer_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

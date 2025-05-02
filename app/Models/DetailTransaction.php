@@ -17,13 +17,16 @@ class DetailTransaction extends Model
         'status'
     ];
 
-    public function transaction()
-    {
-        return $this->belongsTo(Transaction::class, 'transaction_id');
+    public function transaction() {
+        return $this->belongsTo(Transaction::class);
     }
 
-    public function product()
+    public function product() {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function admin()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Admin::class);
     }
 }

@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Models\Category;
+use Illuminate\Support\Facades\Auth; // Tambahkan di atas
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum'); // proteksi semua method harus admin login
+    }
 
     public function index()
     {
@@ -20,8 +25,15 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
         ]);
 
-        $category = Category::create($request->all());
-        return response()->json(['message' => 'Category created successfully', 'data' => $category], 201);
+        $category = Category::create([
+            'name' => $request->name,
+            'admin_id' => Auth::id(), // otomatis ambil id admin yang login
+        ]);
+
+        return response()->json([
+            'message' => 'Category created successfully',
+            'data' => $category
+        ], 201);
     }
 
     public function show($id)
@@ -60,7 +72,7 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
         }
-        
+
         if ($category->products()->count() > 0) {
             return response()->json(['message' => 'Category cannot be deleted, it has associated products'], 400);
         }
@@ -69,3 +81,4 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Category deleted successfully']);
     }
 }
+

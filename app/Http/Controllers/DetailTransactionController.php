@@ -27,27 +27,37 @@ class DetailTransactionController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        // Hanya admin yang boleh akses
+    if (auth()->user()->role !== 'admin') {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
-        $request->validate([
-            'transaction_id' => 'required|exists:transactions,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
+    // Validasi input
+    $validated = $request->validate([
+        'transaction_id' => 'required|exists:transactions,id',
+        'product_id' => 'required|exists:products,id',
+        'quantity' => 'required|integer|min:1',
+    ]);
 
-        $detail = DetailTransaction::create([
-            'transaction_id' => $request->transaction_id,
-            'product_id' => $request->product_id,
-            'quantity' => $request->quantity,
-            'status' => 'pending',
-        ]);
+    // Simpan detail transaksi
+    $detail = DetailTransaction::create([
+        'transaction_id' => $validated['transaction_id'],
+        'product_id' => $validated['product_id'],
+        'quantity' => $validated['quantity'],
+        'status' => 'pending',
+    ]);
 
-        return response()->json([
-            'message' => 'Detail transaction added successfully',
-            'detail' => $detail,
-        ], 201);
+    // Ambil data transaksi & detail untuk ditampilkan kembali
+    $transaction = Transaction::findOrFail($validated['transaction_id']);
+    $details = DetailTransaction::where('transaction_id', $validated['transaction_id'])
+        ->with('product')
+        ->get();
+
+    return response()->json([
+        'message' => 'Detail transaction added successfully',
+        'transaction' => $transaction,
+        'details' => $details,
+    ], 201);
     }
 
     public function update(Request $request, $id)

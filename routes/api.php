@@ -1,6 +1,11 @@
 <?php
 
+
+use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\API\CustomerSwaggerController;
 use App\Http\Controllers\API\CategorySwaggerController;
+use App\Http\Controllers\API\TransactionSwaggerController;
+use App\Http\Controllers\API\ProductSwaggerController;
 use App\Http\Controllers\AuthCustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
@@ -8,6 +13,13 @@ use App\Http\Controllers\DetailTransactionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthAdminController;
+
+// ==========================
+// AUTH ADMIN
+// ==========================
+Route::post('/admin/login', [AuthAdminController::class, 'login']);
+Route::post('/admin/logout', [AuthAdminController::class, 'logout'])->middleware('auth:sanctum');
 
 // ==========================
 // AUTH CUSTOMER
@@ -43,6 +55,16 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // Optional: jika admin bisa lihat semua detail transaksi
     Route::get('/detail-transactions', [DetailTransactionController::class, 'index']);
+
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('sales-reports', [SalesReportController::class, 'index']);
+        Route::get('sales-reports/{id}', [SalesReportController::class, 'show']);
+        Route::post('sales-reports', [SalesReportController::class, 'store']);
+        Route::put('sales-reports/{id}', [SalesReportController::class, 'update']);
+        Route::delete('sales-reports/{id}', [SalesReportController::class, 'destroy']);
+    });
+
 });
 
 // ==========================
@@ -61,6 +83,30 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
 // ==========================
 
 Route::group([], function () {
-    Route::get('category', [CategorySwaggerController::class, 'listCategory']);
+
+    Route::get('/Customer', [CustomerSwaggerController::class, 'index']);
+    Route::get('/Customer/{post}', [CustomerSwaggerController::class, 'show']);
+    Route::post('/Customer', [CustomerSwaggerController::class, 'store']);
+    Route::put('/Customer/{post}', [CustomerSwaggerController::class, 'update']);
+    Route::delete('/Customer/{post}', [CategorySwaggerController::class, 'destroy']);
+
+    Route::get('/category', [CategorySwaggerController::class, 'index']);
+    Route::get('/category/{post}', [CategorySwaggerController::class, 'show']);
+    Route::post('/category', [CategorySwaggerController::class, 'store']);
+    Route::put('/category/{post}', [CategorySwaggerController::class, 'update']);
+    Route::delete('/category/{post}', [CategorySwaggerController::class, 'destroy']);
+
+    Route::get('product', [ProductSwaggerController::class, 'index']);
+    Route::get('/product/{post}', [ProductSwaggerController::class, 'show']);
+    Route::post('/product', [ProductSwaggerController::class, 'store']);
+    Route::put('/product/{post}', [ProductSwaggerController::class, 'update']);
+    Route::delete('/product/{post}', [ProductSwaggerController::class, 'destroy']);
+
+
+    Route::get('Transaction', [TransactionSwaggerController::class, 'index']);
+    Route::get('/Transaction/{post}', [TransactionSwaggerController::class, 'show']);
+    Route::post('/Transaction', [TransactionSwaggerController::class, 'store']);
+    Route::put('/Transaction/{post}', [TransactionSwaggerController::class, 'update']);
+    Route::delete('/Transaction/{post}', [TransactionSwaggerController::class, 'destroy']);
 });
 

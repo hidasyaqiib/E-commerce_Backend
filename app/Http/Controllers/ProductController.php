@@ -4,9 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // Import Auth
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        // hanya butuh auth untuk store, update, destroy
+        // index dan show bebas diakses siapa saja (customer/admin/public)
+    }
 
     public function index()
     {
@@ -27,10 +34,13 @@ class ProductController extends Controller
             'name' => $request->name,
             'price' => $request->price,
             'stock' => $request->stock,
-            'category_id' => $request->category_id, // Masukkan ke kategori Elektronik
+            'category_id' => $request->category_id,
         ]);
 
-        return response()->json(['message' => 'Product created successfully', 'data' => $product], 201);
+        return response()->json([
+            'message' => 'Product created successfully',
+            'data' => $product
+        ], 201);
     }
 
     public function show($id)
@@ -52,14 +62,18 @@ class ProductController extends Controller
         }
 
         $request->validate([
-            'category_id' => 'sometimes|exists:categories,category_id',
+            'category_id' => 'sometimes|exists:categories,id',
             'name' => 'sometimes|string|max:255',
             'price' => 'sometimes|numeric|min:0',
             'stock' => 'sometimes|integer|min:0',
         ]);
 
-        $product->update($request->all());
-        return response()->json(['message' => 'Product updated successfully', 'data' => $product]);
+        $product->update($request->only(['name', 'price', 'stock', 'category_id']));
+
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'data' => $product
+        ]);
     }
 
     public function destroy($id)
@@ -70,6 +84,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
+
         return response()->json(['message' => 'Product deleted successfully']);
     }
 }
