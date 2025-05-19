@@ -21,3 +21,4 @@ class SalesReport extends Model
         return $this->belongsTo(Admin::class);
     }
 }
+
