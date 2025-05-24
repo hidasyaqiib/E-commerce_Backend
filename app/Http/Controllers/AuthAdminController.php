@@ -47,5 +47,15 @@ class AuthAdminController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
-}
 
+    public function get()
+    {
+        $admins = Admin::select('id', 'name', 'email', 'created_at', 'updated_at')->get();
+
+        return response()->json([
+            'message' => 'Admins retrieved successfully',
+            'data' => $admins,
+            'total' => $admins->count()
+        ]);
+    }
+}

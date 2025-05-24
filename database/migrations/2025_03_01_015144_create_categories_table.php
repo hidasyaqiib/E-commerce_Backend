@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('admin_id')->after('id');
+            $table->unsignedBigInteger('admin_id');
             $table->id();
             $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
             $table->string('name');

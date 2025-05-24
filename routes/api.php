@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\API\CustomerSwaggerController;
 use App\Http\Controllers\API\CategorySwaggerController;
@@ -18,6 +17,7 @@ use App\Http\Controllers\AuthAdminController;
 // ==========================
 // AUTH ADMIN
 // ==========================
+Route::post('/admin/register', [AuthAdminController::class, 'register']);
 Route::post('/admin/login', [AuthAdminController::class, 'login']);
 Route::post('/admin/logout', [AuthAdminController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -35,7 +35,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 // ==========================
 // ADMIN ROUTES
 // ==========================
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Admin management - show all admins
+    Route::get('/admins', [AuthAdminController::class, 'get']);
+    
     // Customer CRUD - hanya admin
     Route::apiResource('/customers', CustomerController::class);
 
@@ -56,7 +59,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // Optional: jika admin bisa lihat semua detail transaksi
     Route::get('/detail-transactions', [DetailTransactionController::class, 'index']);
 
-
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('sales-reports', [SalesReportController::class, 'index']);
         Route::get('sales-reports/{id}', [SalesReportController::class, 'show']);
@@ -64,7 +66,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::put('sales-reports/{id}', [SalesReportController::class, 'update']);
         Route::delete('sales-reports/{id}', [SalesReportController::class, 'destroy']);
     });
-
 });
 
 // ==========================
@@ -102,11 +103,9 @@ Route::group([], function () {
     Route::put('/product/{post}', [ProductSwaggerController::class, 'update']);
     Route::delete('/product/{post}', [ProductSwaggerController::class, 'destroy']);
 
-
     Route::get('Transaction', [TransactionSwaggerController::class, 'index']);
     Route::get('/Transaction/{post}', [TransactionSwaggerController::class, 'show']);
     Route::post('/Transaction', [TransactionSwaggerController::class, 'store']);
     Route::put('/Transaction/{post}', [TransactionSwaggerController::class, 'update']);
     Route::delete('/Transaction/{post}', [TransactionSwaggerController::class, 'destroy']);
 });
-
