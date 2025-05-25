@@ -16,7 +16,6 @@ class Admin extends Authenticatable
         'password',
     ];
 
-    // Admin mengelola banyak kategori, produk, transaksi, dan laporan
     public function categories()
     {
         return $this->hasMany(Category::class);

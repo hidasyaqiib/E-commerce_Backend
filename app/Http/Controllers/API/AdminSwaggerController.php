@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class AdminSwaggerController extends Controller
 {
     /**
-     * @OA\Post(
+     * @OA\Post(  
      *     path="/api/admin/register",
      *     summary="Register a new admin",
      *     tags={"Admin Authentication"},

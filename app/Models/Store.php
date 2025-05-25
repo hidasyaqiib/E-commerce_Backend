@@ -9,13 +9,18 @@ class Store extends Model
 {
     use HasFactory;
     protected $fillable =
-    [
-        'id',
-        'nama',
-    ];
+        [
+            'name',
+        ];
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class, 'category_id', 'id');
+        return $this->hasMany(Category::class);
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
 }

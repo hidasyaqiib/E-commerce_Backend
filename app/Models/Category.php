@@ -22,4 +22,8 @@ class Category extends Model
     {
         return $this->belongsTo(Admin::class);
     }
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id', 'id');
+    }
 }

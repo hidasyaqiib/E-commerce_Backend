@@ -54,6 +54,22 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
+    public function getByCategory($categoryId)
+    {
+        $products = Product::with('category')
+            ->where('category_id', $categoryId)
+            ->get();
+
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'No products found for this category'], 404);
+        }
+
+        return response()->json([
+            'category_id' => $categoryId,
+            'products' => $products
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $product = Product::find($id);

@@ -18,6 +18,7 @@ use App\Http\Controllers\AuthAdminController;
 // ==========================
 // AUTH ADMIN
 // ==========================
+Route::post('/admin/register', [AuthAdminController::class, 'register']);
 Route::post('/admin/login', [AuthAdminController::class, 'login']);
 Route::post('/admin/logout', [AuthAdminController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -44,6 +45,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // Product CRUD
     Route::apiResource('/products', ProductController::class);
+    Route::get('/products/category/{id}', [ProductController::class, 'getByCategory']);
+
 
     // Transaction management (semua transaksi)
     Route::apiResource('/transactions', TransactionController::class);
