@@ -11,13 +11,13 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
-            $table->id(); // kolom 'id'
-            $table->unsignedBigInteger('admin_id'); // kolom admin_id harus ditulis dulu
+            $table->id();
+            $table->unsignedBigInteger('admin_id');
             $table->string('name');
             $table->timestamps();
+
             $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
         });
-
     }
 
     /**
@@ -25,9 +25,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::table('categories', function (Blueprint $table) {
-            $table->dropColumn('admin_id');
-        });
+        Schema::dropIfExists('categories');
     }
 };
-
