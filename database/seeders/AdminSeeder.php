@@ -10,10 +10,13 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buat role admin
-        $role = Role::firstOrCreate(['name' => 'admin']);
+        $role = Role::where('name', 'admin')->first();
 
-        // Buat user admin
+        if (!$role) {
+            $this->command->error('Role "admin" belum tersedia. Jalankan RoleSeeder terlebih dahulu.');
+            return;
+        }
+
         $admin = User::firstOrCreate(
             ['email' => 'admin@app.com'],
             [
@@ -22,7 +25,6 @@ class AdminSeeder extends Seeder
             ]
         );
 
-        // Assign role
         $admin->assignRole($role);
     }
 }

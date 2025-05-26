@@ -4,15 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Import Auth
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index', 'show']);
-        // hanya butuh auth untuk store, update, destroy
-        // index dan show bebas diakses siapa saja (customer/admin/public)
+        $this->middleware('auth:sanctum')->except(['index', 'show', 'getByCategory', 'getByStore']);
     }
 
     public function index()
@@ -30,11 +28,19 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
+        $user = Auth::user();
+        $store = $user->store;
+
+        if (!$store) {
+            return response()->json(['message' => 'You must create a store first'], 403);
+        }
+
         $product = Product::create([
             'name' => $request->name,
             'price' => $request->price,
             'stock' => $request->stock,
             'category_id' => $request->category_id,
+            'store_id' => $store->id,
         ]);
 
         return response()->json([
@@ -70,11 +76,34 @@ class ProductController extends Controller
         ]);
     }
 
+    public function getByStore($storeId)
+    {
+        $products = Product::with('category')
+            ->where('store_id', $storeId)
+            ->get();
+
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'No products found for this store'], 404);
+        }
+
+        return response()->json([
+            'store_id' => $storeId,
+            'products' => $products
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        $user = Auth::user();
+        $store = $user->store;
+
+        if (!$store || $product->store_id !== $store->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $request->validate([
@@ -97,6 +126,13 @@ class ProductController extends Controller
         $product = Product::find($id);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        $user = Auth::user();
+        $store = $user->store;
+
+        if (!$store || $product->store_id !== $store->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $product->delete();

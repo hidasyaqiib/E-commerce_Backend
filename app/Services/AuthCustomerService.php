@@ -10,25 +10,21 @@ class AuthCustomerService
 {
     public function register(array $data)
     {
-        // 1. Buat user baru
         $user = User::create([
-            'name' => $data['name'], // Optional
+            'name' => $data['name'], // wajib diisi supaya tidak error di DB
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
 
-        // 2. Beri role customer
         $user->assignRole('customer');
 
-        // 3. Buat data customer dan hubungkan ke user
-        $customer = $user->customer()->create([
+        $customer = Customer::create([
+            'user_id' => $user->id,
             'name' => $data['name'],
-            'email' => $data['email'],
             'phone' => $data['phone'],
             'address' => $data['address'],
         ]);
 
-        // 4. Buat token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [

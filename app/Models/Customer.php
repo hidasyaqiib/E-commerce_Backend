@@ -32,4 +32,10 @@ class Customer extends Authenticatable
     {
         return $this->belongsTo(User::class);
     }
+
+    public function store()
+    {
+        return $this->hasOne(Store::class);
+    }
+
 }

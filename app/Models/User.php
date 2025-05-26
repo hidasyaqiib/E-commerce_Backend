@@ -37,19 +37,4 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * Relasi ke model Customer
-     */
-    public function customer(): HasOne
-    {
-        return $this->hasOne(Customer::class);
-    }
-
-    /**
-     * Relasi ke model Admin (kalau kamu pakai model Admin juga)
-     */
-    public function admin(): HasOne
-    {
-        return $this->hasOne(Admin::class);
-    }
 }
