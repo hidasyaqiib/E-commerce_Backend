@@ -11,7 +11,7 @@ class AuthCustomerService
     public function register(array $data)
     {
         $user = User::create([
-            'name' => $data['name'], // wajib diisi supaya tidak error di DB
+            'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);

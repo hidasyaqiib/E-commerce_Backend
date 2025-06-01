@@ -20,15 +20,15 @@ class AuthCustomerController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email', // <- validasi ke tabel users
+            'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|max:15',
             'address' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|min:6|confirmed',
         ]);
 
-        $result = $this->authService->register($request->all());
+        $result = $this->authService->register($validated);
 
         return response()->json([
             'message' => 'Customer registered successfully',
