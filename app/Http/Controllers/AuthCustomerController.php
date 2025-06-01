@@ -1,11 +1,17 @@
 <?php
 
+// ============================================
+// 5. AUTH CUSTOMER CONTROLLER
+// ============================================
+// File: app/Http/Controllers/AuthCustomerController.php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\AuthCustomerService;
 use App\Services\CustomerService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AuthCustomerController extends Controller
 {
@@ -19,83 +25,151 @@ class AuthCustomerController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $request->validate([
+{
+    try {
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email', // <- validasi ke tabel users
+            'email' => 'required|email|unique:users,email',  // <- Ubah ke users, bukan customers
             'phone' => 'required|string|max:15',
             'address' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|min:6|confirmed',
         ]);
 
-        $result = $this->authService->register($request->all());
+        $result = $this->authService->register($validated);
 
         return response()->json([
+            'success' => true,
             'message' => 'Customer registered successfully',
-            'user' => $result['user'],
-            'customer' => $result['customer'],
-            'token' => $result['token'],
+            'data' => [
+                'customer' => $result['customer'],
+                'token' => $result['token'],
+            ]
         ], 201);
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration failed',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-        $result = $this->authService->login($request->email, $request->password);
+            $result = $this->authService->login($request->email, $request->password);
 
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $result['user'],
-            'customer' => $result['customer'],
-            'token' => $result['token'],
-        ]);
-    }
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+                'data' => [
+                    'customer' => $result['customer'],
+                    'token' => $result['token'],
+                ]
+            ]);
 
-    public function updateProfile(Request $request)
-    {
-        $user = auth()->user();
-        $customer = $user->customer;
-
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'phone' => 'sometimes|string|max:15',
-            'address' => 'sometimes|string',
-        ]);
-
-        // Update data user
-        $user->update($request->only('email'));
-
-        // Update data customer
-        $customer->update($request->only('name', 'phone', 'address'));
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'user' => $user,
-            'customer' => $customer,
-        ]);
-    }
-
-    public function logout(Request $request)
-    {
-        $this->authService->logout($request->user());
-
-        return response()->json(['message' => 'Logged out successfully']);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Login failed',
+                'errors' => $e->errors()
+            ], 401);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Login failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function profile(Request $request)
     {
-        $user = auth()->user();
-        $customer = $user->customer;
+        try {
+            $customer = $request->user();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile retrieved successfully',
+                'data' => [
+                    'customer' => $customer
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get profile',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-        return response()->json([
-            'user' => $user,
-            'customer' => $customer,
-            'role' => $user->getRoleNames()
-        ]);
+    public function updateProfile(Request $request)
+    {
+        try {
+            $customer = $request->user();
+
+            $validated = $request->validate([
+    'name' => 'sometimes|string|max:255',
+    'email' => 'sometimes|email|unique:users,email,' . $customer->user_id, // <- Ubah ke users
+    'phone' => 'sometimes|string|max:15',
+    'address' => 'sometimes|string',
+]);
+
+            $updatedCustomer = $this->customerService->updateCustomer($customer, $validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'customer' => $updatedCustomer
+                ]
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Profile update failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $this->authService->logout($customer);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
+

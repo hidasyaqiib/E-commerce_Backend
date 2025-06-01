@@ -1,62 +1,64 @@
 <?php
 
+// ============================================
+// 3. AUTH CUSTOMER SERVICE
+// ============================================
+// File: app/Services/AuthCustomerService.php
+
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AuthCustomerService
 {
     public function register(array $data)
     {
-        // 1. Buat user baru
-        $user = User::create([
-            'name' => $data['name'], // Optional
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
-
-        // 2. Beri role customer
-        $user->assignRole('customer');
-
-        // 3. Buat data customer dan hubungkan ke user
-        $customer = $user->customer()->create([
+        // Create customer
+        $customer = Customer::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
             'address' => $data['address'],
+            'password' => Hash::make($data['password']),
         ]);
 
-        // 4. Buat token
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Create token
+        $token = $customer->createToken('customer-token')->plainTextToken;
 
         return [
-            'user' => $user,
             'customer' => $customer,
             'token' => $token,
         ];
     }
 
-    public function login($email, $password)
+    public function login(string $email, string $password)
     {
-        if (!Auth::attempt(['email' => $email, 'password' => $password])) {
-            abort(401, 'Invalid login credentials');
+        $customer = Customer::where('email', $email)->first();
+
+        if (!$customer || !Hash::check($password, $customer->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
         }
 
-        $user = Auth::user();
-        $customer = $user->customer;
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Revoke existing tokens
+        $customer->tokens()->delete();
+
+        // Create new token
+        $token = $customer->createToken('customer-token')->plainTextToken;
 
         return [
-            'user' => $user,
             'customer' => $customer,
             'token' => $token,
         ];
     }
 
-    public function logout($user)
+    public function logout(Customer $customer)
     {
-        $user->tokens()->delete();
+        $customer->tokens()->delete();
+        return true;
     }
 }

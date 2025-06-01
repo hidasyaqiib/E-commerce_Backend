@@ -1,9 +1,15 @@
 <?php
 
+// ============================================
+// 6. CUSTOMER CRUD CONTROLLER
+// ============================================
+// File: app/Http/Controllers/CustomerController.php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\CustomerService;
+use Illuminate\Validation\ValidationException;
 
 class CustomerController extends Controller
 {
@@ -16,47 +22,92 @@ class CustomerController extends Controller
 
     public function index()
     {
-        $customers = $this->customerService->getAll();
-        return response()->json($customers);
+        try {
+            $customers = $this->customerService->getAllCustomers();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Customers retrieved successfully',
+                'data' => $customers
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve customers',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id)
     {
-        $customer = $this->customerService->findById($id);
-
-        if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
+        try {
+            $customer = $this->customerService->getCustomer($id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer retrieved successfully',
+                'data' => $customer
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer not found',
+                'error' => $e->getMessage()
+            ], 404);
         }
-
-        return response()->json($customer);
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name'    => 'sometimes|string|max:255',
-            'email'   => 'sometimes|email|unique:customers,email,' . $id . ',id_customer',
-            'phone'   => 'sometimes|string|max:15',
-            'address' => 'sometimes|string',
-        ]);
+        try {
+            $customer = $this->customerService->getCustomer($id);
+            
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|unique:customers,email,' . $id,
+                'phone' => 'sometimes|string|max:15',
+                'address' => 'sometimes|string',
+            ]);
 
-        $customer = $this->customerService->update($id, $request->all());
+            $updatedCustomer = $this->customerService->updateCustomer($customer, $validated);
 
-        if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer updated successfully',
+                'data' => $updatedCustomer
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update customer',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
     }
 
     public function destroy($id)
     {
-        $deleted = $this->customerService->delete($id);
-
-        if (!$deleted) {
-            return response()->json(['message' => 'Customer not found'], 404);
+        try {
+            $this->customerService->deleteCustomer($id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete customer',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['message' => 'Customer deleted successfully']);
     }
 }

@@ -11,6 +11,7 @@ class Customer extends Authenticatable
     use HasApiTokens, HasFactory;
 
     protected $fillable = [
+        'user_id',    // TAMBAHKAN INI
         'name',
         'email',
         'phone',
@@ -31,5 +32,10 @@ class Customer extends Authenticatable
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function store()
+    {
+        return $this->hasOne(Store::class);
     }
 }
