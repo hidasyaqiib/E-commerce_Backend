@@ -1,5 +1,4 @@
 <?php
-
 // ============================================
 // 7. UPDATED API ROUTES (Integrated with your existing routes)
 // ============================================
@@ -33,7 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/admin/logout', [AuthAdminController::class, 'logout']);
     Route::post('/customer/logout', [AuthCustomerController::class, 'logout']);
     Route::get('/customer/profile', [AuthCustomerController::class, 'profile']);
-    
+
     // Add profile update route
     Route::put('/customer/profile', [AuthCustomerController::class, 'updateProfile']);
 });

@@ -16,17 +16,21 @@ class AuthCustomerService
 {
     public function register(array $data)
     {
+
         // Create customer
         $customer = Customer::create([
+
             'name' => $data['name'],
-            'email' => $data['email'],
+            'email' => $data['email'], 
             'phone' => $data['phone'],
             'address' => $data['address'],
             'password' => Hash::make($data['password']),
         ]);
 
+
         // Create token
         $token = $customer->createToken('customer-token')->plainTextToken;
+
 
         return [
             'customer' => $customer,
