@@ -43,7 +43,6 @@ class AuthCustomerController extends Controller
             'message' => 'Customer registered successfully',
             'data' => [
                 'customer' => $result['customer'],
-                'token' => $result['token'],
             ]
         ], 201);
 
@@ -100,7 +99,7 @@ class AuthCustomerController extends Controller
     {
         try {
             $customer = $request->user();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Profile retrieved successfully',

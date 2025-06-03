@@ -10,7 +10,7 @@ class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum'); // semua harus login
+        $this->middleware('auth:sanctum'); // semua endpoint wajib login
     }
 
     public function index()
@@ -39,7 +39,6 @@ class CategoryController extends Controller
             return response()->json(['message' => 'You must create a store first'], 403);
         }
 
-        // optional: validasi nama kategori unik di store yang sama
         if (Category::where('store_id', $store->id)->where('name', $request->name)->exists()) {
             return response()->json(['message' => 'Category name already exists in your store'], 422);
         }
@@ -47,6 +46,7 @@ class CategoryController extends Controller
         $category = Category::create([
             'name' => $request->name,
             'store_id' => $store->id,
+            'admin_id' => $user->id, // otomatis ambil dari user login
         ]);
 
         return response()->json([

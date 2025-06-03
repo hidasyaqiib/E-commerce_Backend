@@ -2,101 +2,125 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\Transaction;
 use App\Models\DetailTransaction;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => ['required', 'regex:/^[0-9]+$/'],
+            'address' => 'required|string',
+            'payment_method' => 'required|in:cash,credit_card,bank_transfer',
+            'products' => 'required|array|min:1',
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        $customer = Auth::guard('customer')->user();
+        DB::beginTransaction();
+
+        try {
+            $subtotal = 0;
+            $products = [];
+
+            foreach ($validated['products'] as $item) {
+                $product = Product::findOrFail($item['product_id']);
+
+                if ($product->stock < $item['quantity']) {
+                    throw new \Exception("Insufficient stock for product {$product->name}");
+                }
+
+                $products[] = ['model' => $product, 'quantity' => $item['quantity']];
+                $subtotal += $product->price * $item['quantity'];
+            }
+
+            if ($subtotal <= 0) {
+                throw new \Exception('Subtotal must be greater than zero');
+            }
+
+            $transaction = Transaction::create([
+                'customer_id' => $customer->id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'payment_method' => $validated['payment_method'],
+                'subtotal' => $subtotal,
+            ]);
+
+            foreach ($products as $item) {
+                $status = $validated['payment_method'] === 'cash' ? 'pending' : 'paid';
+
+                DetailTransaction::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $item['model']->id,
+                    'quantity' => $item['quantity'],
+                    'status' => $status,
+                ]);
+
+                $item['model']->decrement('stock', $item['quantity']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Transaction created successfully',
+                'data' => $transaction->load('details.product'),
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Transaction failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function index()
     {
-        $transactions = Transaction::with('customer', 'details.product')->get();
+        $customer = Auth::guard('customer')->user();
+
+        $transactions = Transaction::with('details.product')
+            ->where('customer_id', $customer->id)
+            ->get();
+
         return response()->json($transactions);
     }
 
-    public function store(Request $request)
+    public function show($id)
     {
-        $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'payment_method' => 'required|string',
-            'details' => 'required|array',
-            'details.*.product_id' => 'required|exists:products,id',
-            'details.*.quantity' => 'required|integer|min:1',
-        ]);
+        $customer = Auth::guard('customer')->user();
 
-        $grandTotal = 0;
+        $transaction = Transaction::with('details.product')
+            ->where('id', $id)
+            ->where('customer_id', $customer->id)
+            ->firstOrFail();
 
-        foreach ($request->details as $detail) {
-            $product = Product::findOrFail($detail['product_id']);
-            $subtotal = $product->price * $detail['quantity'];
-            $grandTotal += $subtotal;
-        }
-
-        $transaction = Transaction::create([
-            'customer_id' => $request->customer_id,
-            'grand_total' => $grandTotal,
-            'payment_method' => $request->payment_method,
-            'status' => 'pending',
-        ]);
-
-        foreach ($request->details as $detail) {
-            $product = Product::findOrFail($detail['product_id']);
-            DetailTransaction::create([
-                'transaction_id' => $transaction->id,
-                'product_id' => $product->id,
-                'quantity' => $detail['quantity'],
-                'subtotal' => $product->price * $detail['quantity'],
-                'status' => 'unpaid',
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Transaction created successfully',
-            'transaction' => $transaction->load('details.product')
-        ], 201);
+        return response()->json($transaction);
     }
 
     public function updateStatus(Request $request, $id)
     {
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $request->validate([
-            'status' => 'required|string|in:pending,paid,shipped,completed,canceled'
+            'status' => 'required|in:pending,paid,cancelled'
         ]);
 
-        $transaction = Transaction::findOrFail($id);
-        $transaction->status = $request->status;
-        $transaction->save();
+        $transaction = Transaction::with('details')->findOrFail($id);
 
-        return response()->json([
-            'message' => 'Transaction status updated',
-            'transaction' => $transaction
-        ]);
-    }
-
-    public function cancel($id)
-    {
-        $transaction = Transaction::findOrFail($id);
-
-        if ($transaction->customer_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        foreach ($transaction->details as $detail) {
+            $detail->update(['status' => $request->status]);
         }
 
-        if ($transaction->status !== 'pending') {
-            return response()->json(['message' => 'Cannot cancel transaction that is already processed'], 400);
-        }
-
-        $transaction->status = 'canceled';
-        $transaction->save();
-
         return response()->json([
-            'message' => 'Transaction canceled successfully',
-            'transaction' => $transaction
+            'message' => 'Transaction status updated to ' . $request->status
         ]);
     }
 }

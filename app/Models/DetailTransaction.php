@@ -13,7 +13,6 @@ class DetailTransaction extends Model
         'transaction_id',
         'product_id',
         'quantity',
-        'subtotal',
         'status'
     ];
 
@@ -22,11 +21,6 @@ class DetailTransaction extends Model
     }
 
     public function product() {
-        return $this->belongsTo(Product::class);
-    }
-    
-    public function admin()
-    {
-        return $this->belongsTo(Admin::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

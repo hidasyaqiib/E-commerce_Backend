@@ -12,27 +12,29 @@ class AuthAdminController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:admins,email',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:admins,email',
             'password' => 'required|min:6',
         ]);
 
         try {
             $admin = Admin::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
+                'name' => $request->name,
+                'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
 
+            $admin->assignRole('admin');
+
             return response()->json([
                 'message' => 'Admin registered successfully',
-                'admin'   => $admin,
+                'admin' => $admin,
             ], 201);
 
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'Registration failed',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -41,7 +43,7 @@ class AuthAdminController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
@@ -55,8 +57,8 @@ class AuthAdminController extends Controller
 
         return response()->json([
             'message' => 'Login successful',
-            'admin'   => $admin,
-            'token'   => $token,
+            'admin' => $admin,
+            'token' => $token,
         ]);
     }
 
@@ -67,8 +69,8 @@ class AuthAdminController extends Controller
 
         return response()->json([
             'message' => 'Admins retrieved successfully',
-            'data'    => $admins,
-            'total'   => $admins->count(),
+            'data' => $admins,
+            'total' => $admins->count(),
         ]);
     }
 
@@ -81,4 +83,19 @@ class AuthAdminController extends Controller
             'message' => 'Logged out successfully',
         ]);
     }
+
+    public function destroy(Request $request)
+{
+    $admin = $request->user();
+
+    // Hapus semua token dulu (biar logout semua perangkat)
+    $admin->tokens()->delete();
+
+    // Hapus akun admin dari database
+    $admin->delete();
+
+    return response()->json([
+        'message' => 'Admin account deleted successfully'
+    ]);
+}
 }

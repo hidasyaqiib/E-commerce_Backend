@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
@@ -13,7 +14,7 @@ class AdminSeeder extends Seeder
         $role = Role::where('name', 'admin')->first();
 
         if (!$role) {
-            $this->command->error('Role "admin" belum tersedia. Jalankan RoleSeeder terlebih dahulu.');
+            $this->command->error('❌ Role "admin" belum tersedia. Jalankan RoleSeeder terlebih dahulu.');
             return;
         }
 
@@ -21,10 +22,15 @@ class AdminSeeder extends Seeder
             ['email' => 'admin@app.com'],
             [
                 'name' => 'Admin',
-                'password' => bcrypt('password123'),
+                'password' => Hash::make('password123'), // Lebih aman pakai Hash
             ]
         );
 
-        $admin->assignRole($role);
+        if (!$admin->hasRole('admin')) {
+            $admin->assignRole('admin');
+            $this->command->info('✅ Admin role assigned to user admin@app.com');
+        } else {
+            $this->command->warn('⚠️ User admin@app.com already has admin role.');
+        }
     }
 }

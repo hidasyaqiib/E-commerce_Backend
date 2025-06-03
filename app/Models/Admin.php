@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, Notifiable, HasRoles;
+
+     protected $guard_name = 'web';
 
     protected $fillable = [
         'name',
@@ -34,6 +37,11 @@ class Admin extends Authenticatable
     public function salesReports()
     {
         return $this->hasMany(SalesReport::class);
+    }
+
+    public function Store()
+    {
+        return $this->hasOne(Store::class);
     }
 }
 

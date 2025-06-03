@@ -21,7 +21,7 @@ class AuthCustomerService
         $customer = Customer::create([
 
             'name' => $data['name'],
-            'email' => $data['email'], 
+            'email' => $data['email'],
             'phone' => $data['phone'],
             'address' => $data['address'],
             'password' => Hash::make($data['password']),
@@ -30,7 +30,7 @@ class AuthCustomerService
 
         // Create token
         $token = $customer->createToken('customer-token')->plainTextToken;
-
+        $customer->assignRole('customer');
 
         return [
             'customer' => $customer,

@@ -11,6 +11,8 @@ class Store extends Model
     protected $fillable =
         [
             'name',
+            'description',
+            'admin_id',
         ];
 
     public function categories()
@@ -23,8 +25,8 @@ class Store extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function Customer()
+    public function Admin()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Admin::class);
     }
 }

@@ -14,13 +14,12 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->constrained('admins')->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('phone', 15);
+            $table->string('email');
+            $table->string('phone');
             $table->text('address');
-            $table->decimal('grand_total', 10, 2);
+            $table->decimal('subtotal', 12, 2);
             $table->enum('payment_method', ['cash', 'credit_card', 'bank_transfer']);
             $table->timestamps();
         });

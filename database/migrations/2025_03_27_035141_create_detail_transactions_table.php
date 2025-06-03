@@ -14,12 +14,10 @@ return new class extends Migration
     {
         Schema::create('detail_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->constrained('admins')->onDelete('cascade');
-            $table->foreignId('transaction_id')->constrained('transactions')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('transaction_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
-            $table->decimal('subtotal', 10, 2);
-            $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
+            $table->enum('status', ['pending', 'success', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

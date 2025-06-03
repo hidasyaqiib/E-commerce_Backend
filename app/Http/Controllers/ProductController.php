@@ -10,13 +10,12 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index', 'show', 'getByCategory', 'getByStore']);
+        $this->middleware('auth:admin')->except(['index', 'show', 'getByCategory', 'getByStore']);
     }
 
-    public function index()
+    protected function getAuthenticatedAdmin()
     {
-        $products = Product::with('category')->get();
-        return response()->json($products);
+        return Auth::guard('admin')->user();
     }
 
     public function store(Request $request)
@@ -28,8 +27,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $user = Auth::user();
-        $store = $user->store;
+        $admin = $this->getAuthenticatedAdmin();
+        $store = $admin->store;
 
         if (!$store) {
             return response()->json(['message' => 'You must create a store first'], 403);
@@ -49,9 +48,15 @@ class ProductController extends Controller
         ], 201);
     }
 
+    public function index()
+    {
+        $products = Product::with(['category', 'store'])->get();
+        return response()->json($products);
+    }
+
     public function show($id)
     {
-        $product = Product::with('category')->find($id);
+        $product = Product::with(['category', 'store'])->find($id);
 
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
@@ -62,7 +67,7 @@ class ProductController extends Controller
 
     public function getByCategory($categoryId)
     {
-        $products = Product::with('category')
+        $products = Product::with(['category', 'store'])
             ->where('category_id', $categoryId)
             ->get();
 
@@ -78,7 +83,7 @@ class ProductController extends Controller
 
     public function getByStore($storeId)
     {
-        $products = Product::with('category')
+        $products = Product::with(['category', 'store'])
             ->where('store_id', $storeId)
             ->get();
 
@@ -92,6 +97,7 @@ class ProductController extends Controller
         ]);
     }
 
+
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
@@ -99,8 +105,8 @@ class ProductController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-        $user = Auth::user();
-        $store = $user->store;
+        $admin = $this->getAuthenticatedAdmin();
+        $store = $admin->store;
 
         if (!$store || $product->store_id !== $store->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -128,8 +134,8 @@ class ProductController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-        $user = Auth::user();
-        $store = $user->store;
+        $admin = $this->getAuthenticatedAdmin();
+        $store = $admin->store;
 
         if (!$store || $product->store_id !== $store->id) {
             return response()->json(['message' => 'Unauthorized'], 403);

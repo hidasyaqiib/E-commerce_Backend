@@ -51,6 +51,12 @@ return [
             'driver' => 'sanctum',
             'provider' => 'customers',
         ],
+
+        // admin guards
+        'admin' => [
+        'driver' => 'sanctum',
+        'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -86,6 +92,12 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        // admin providers
+        'admins' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Admin::class,
+    ],
     ],
 
     /*
