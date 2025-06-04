@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 class CategorySwaggerController extends Controller
 {
     /**
@@ -12,28 +13,34 @@ class CategorySwaggerController extends Controller
      *     path="/categories",
      *     tags={"Category"},
      *     operationId="listCategories",
-     *     summary="List all categories",
-     *     description="Retrieve all product categories",
+     *     summary="List all categories for the authenticated user's store",
+     *     description="Retrieve all product categories for the current user's store",
      *     security={{"sanctum":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(
-     *             example={
-     *                 {
-     *                     "id": 1,
-     *                     "name": "Electronics",
-     *                     "admin_id": 1
-     *                 }
-     *             }
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer"),
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="store_id", type="integer"),
+     *                 @OA\Property(property="admin_id", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You must create a store first")
      *         )
      *     )
      * )
      */
     public function index()
     {
-        $categories = Category::all();
-        return response()->json($categories);
+        // Implementation
     }
 
     /**
@@ -41,51 +48,48 @@ class CategorySwaggerController extends Controller
      *     path="/categories",
      *     tags={"Category"},
      *     operationId="storeCategory",
-     *     summary="Create a new category",
-     *     description="Admin only: Create a new product category",
+     *     summary="Create a new category for the authenticated user's store",
+     *     description="Create a new product category in the current user's store",
      *     security={{"sanctum":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name"},
-     *             @OA\Property(property="name", type="string", example="Gadgets")
+     *             @OA\Property(property="name", type="string", example="Electronics")
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Category created successfully",
      *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Category created successfully",
-     *                 "data": {
-     *                     "id": 2,
-     *                     "name": "Gadgets",
-     *                     "admin_id": 1
-     *                 }
-     *             }
+     *             @OA\Property(property="message", type="string", example="Category created successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer"),
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="store_id", type="integer"),
+     *                 @OA\Property(property="admin_id", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You must create a store first")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category name already exists in your store")
+     *         )
      *     )
      * )
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-        ]);
-
-        $category = Category::create([
-            'name' => $request->name,
-            'admin_id' => Auth::id(), // otomatis ambil id admin yang login
-        ]);
-
-        return response()->json([
-            'message' => 'Category created successfully',
-            'data' => $category
-        ], 201);
+        // Implementation
     }
 
     /**
@@ -94,7 +98,7 @@ class CategorySwaggerController extends Controller
      *     tags={"Category"},
      *     operationId="showCategory",
      *     summary="Get a category by ID",
-     *     description="Retrieve a specific category with its products",
+     *     description="Retrieve a specific category with its products (must belong to the user's store)",
      *     security={{"sanctum":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -107,32 +111,32 @@ class CategorySwaggerController extends Controller
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(
-     *             example={
-     *                 "id": 1,
-     *                 "name": "Electronics",
-     *                 "products": {
-     *                     {
-     *                         "id": 1,
-     *                         "name": "Smartphone",
-     *                         "price": 1000000
-     *                     }
-     *                 }
-     *             }
+     *             @OA\Property(property="id", type="integer"),
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="store_id", type="integer"),
+     *             @OA\Property(property="admin_id", type="integer"),
+     *             @OA\Property(property="products", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthorized access to this category")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found"
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category not found")
+     *         )
      *     )
      * )
      */
     public function show($id)
     {
-        $category = Category::with('products')->find($id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
-        return response()->json($category);
+        // Implementation
     }
 
     /**
@@ -141,7 +145,7 @@ class CategorySwaggerController extends Controller
      *     tags={"Category"},
      *     operationId="updateCategory",
      *     summary="Update a category",
-     *     description="Admin only: Update an existing category",
+     *     description="Update an existing category (must belong to the user's store)",
      *     security={{"sanctum":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -153,48 +157,49 @@ class CategorySwaggerController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="Updated Category Name")
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", example="Updated Electronics")
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Category updated successfully",
      *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Category updated successfully",
-     *                 "data": {
-     *                     "id": 1,
-     *                     "name": "Updated Category Name",
-     *                     "admin_id": 1
-     *                 }
-     *             }
+     *             @OA\Property(property="message", type="string", example="Category updated successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer"),
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="store_id", type="integer"),
+     *                 @OA\Property(property="admin_id", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found"
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The name has already been taken")
+     *         )
      *     )
      * )
      */
     public function update(Request $request, $id)
     {
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
-
-        $request->validate([
-            'name' => 'sometimes|string|max:255|unique:categories,name,' . $id,
-        ]);
-
-        $category->update([
-            'name' => $request->name
-        ]);
-
-        return response()->json([
-            'message' => 'Category updated successfully',
-            'data' => $category
-        ]);
+        // Implementation
     }
 
     /**
@@ -203,7 +208,7 @@ class CategorySwaggerController extends Controller
      *     tags={"Category"},
      *     operationId="deleteCategory",
      *     summary="Delete a category",
-     *     description="Admin only: Delete a category if it has no associated products",
+     *     description="Delete a category if it has no associated products (must belong to the user's store)",
      *     security={{"sanctum":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -216,33 +221,34 @@ class CategorySwaggerController extends Controller
      *         response=200,
      *         description="Category deleted successfully",
      *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Category deleted successfully"
-     *             }
+     *             @OA\Property(property="message", type="string", example="Category deleted successfully")
      *         )
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Category cannot be deleted, it has associated products"
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category cannot be deleted, it has associated products")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found"
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Category not found")
+     *         )
      *     )
      * )
      */
     public function destroy($id)
     {
-        $category = Category::find($id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
-
-        if ($category->products()->count() > 0) {
-            return response()->json(['message' => 'Category cannot be deleted, it has associated products'], 400);
-        }
-
-        $category->delete();
-        return response()->json(['message' => 'Category deleted successfully']);
+        // Implementation
     }
 }

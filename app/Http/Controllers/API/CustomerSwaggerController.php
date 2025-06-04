@@ -22,14 +22,27 @@ class CustomerSwaggerController extends Controller
      *     tags={"Customers"},
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation"
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Customers retrieved successfully"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to retrieve customers"),
+     *             @OA\Property(property="error", type="string")
+     *         )
      *     )
      * )
      */
     public function index()
     {
-        $customers = $this->customerService->getAll();
-        return response()->json($customers);
+        // Implementation
     }
 
     /**
@@ -46,23 +59,36 @@ class CustomerSwaggerController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Customer data"
+     *         description="Customer data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Customer retrieved successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Customer not found"
+     *         description="Not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Customer not found"),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to retrieve customer"),
+     *             @OA\Property(property="error", type="string")
+     *         )
      *     )
      * )
      */
     public function show($id)
     {
-        $customer = $this->customerService->findById($id);
-
-        if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
-        return response()->json($customer);
+        // Implementation
     }
 
     /**
@@ -80,38 +106,53 @@ class CustomerSwaggerController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="address", type="string")
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="phone", type="string", example="081234567890"),
+     *             @OA\Property(property="address", type="string", example="123 Main St")
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Customer updated successfully"
+     *         description="Customer updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Customer updated successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Customer not found"
+     *         description="Not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Customer not found"),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to update customer"),
+     *             @OA\Property(property="error", type="string")
+     *         )
      *     )
      * )
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name'    => 'sometimes|string|max:255',
-            'email'   => 'sometimes|email|unique:customers,email,' . $id . ',id_customer',
-            'phone'   => 'sometimes|string|max:15',
-            'address' => 'sometimes|string',
-        ]);
-
-        $customer = $this->customerService->update($id, $request->all());
-
-        if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
-        return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
+        // Implementation
     }
 
     /**
@@ -128,22 +169,34 @@ class CustomerSwaggerController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Customer deleted successfully"
+     *         description="Customer deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Customer deleted successfully")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Customer not found"
+     *         description="Not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Customer not found"),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to delete customer"),
+     *             @OA\Property(property="error", type="string")
+     *         )
      *     )
      * )
      */
     public function destroy($id)
     {
-        $deleted = $this->customerService->delete($id);
-
-        if (!$deleted) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
-        return response()->json(['message' => 'Customer deleted successfully']);
+        // Implementation
     }
 }

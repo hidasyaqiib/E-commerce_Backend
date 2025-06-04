@@ -15,28 +15,26 @@ class DetailTransactionSwaggerController extends Controller
      *     tags={"DetailTransaction"},
      *     operationId="listDetailTransactions",
      *     summary="List all detail transactions",
-     *     description="Retrieve all detail transactions with their related transaction and product",
+     *     description="Retrieve all detail transactions with their related transaction, customer, and product",
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(
-     *             example={
-     *                 {
-     *                     "id": 1,
-     *                     "transaction_id": 1,
-     *                     "product_id": 1,
-     *                     "quantity": 2,
-     *                     "status": "pending"
-     *                 }
-     *             }
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="transaction_id", type="integer", example=1),
+     *                 @OA\Property(property="product_id", type="integer", example=1),
+     *                 @OA\Property(property="quantity", type="integer", example=2),
+     *                 @OA\Property(property="status", type="string", example="pending"),
+     *                 @OA\Property(property="transaction", type="object"),
+     *                 @OA\Property(property="product", type="object")
+     *             )
      *         )
      *     )
      * )
      */
-    public function index()
-    {
-        //
-    }
+    public function index() {}
 
     /**
      * @OA\Get(
@@ -44,11 +42,10 @@ class DetailTransactionSwaggerController extends Controller
      *     tags={"DetailTransaction"},
      *     operationId="showDetailTransaction",
      *     summary="Show details of a specific transaction",
-     *     description="Retrieve detail transactions by transaction ID",
+     *     description="Retrieve detail transactions by transaction ID, including transaction and product data",
      *     @OA\Parameter(
      *         name="transaction_id",
      *         in="path",
-     *         description="ID of the transaction",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
@@ -56,30 +53,27 @@ class DetailTransactionSwaggerController extends Controller
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(
-     *             example={
-     *                 "transaction": {
-     *                     "id": 1,
-     *                     "customer_id": 1,
-     *                     "total_amount": 50000
-     *                 },
-     *                 "details": {
-     *                     {
-     *                         "id": 1,
-     *                         "product_id": 1,
-     *                         "quantity": 2,
-     *                         "status": "pending"
-     *                     }
-     *                 }
-     *             }
+     *             @OA\Property(property="transaction", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="customer_id", type="integer", example=1),
+     *                 @OA\Property(property="total_amount", type="integer", example=50000)
+     *             ),
+     *             @OA\Property(
+     *                 property="details",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="product_id", type="integer", example=1),
+     *                     @OA\Property(property="quantity", type="integer", example=2),
+     *                     @OA\Property(property="status", type="string", example="pending"),
+     *                     @OA\Property(property="product", type="object")
+     *                 )
+     *             )
      *         )
      *     )
      * )
      */
-    public function show($transaction_id)
-    {
-        $details = DetailTransaction::with(['transaction.customer', 'product'])->get();
-        return response()->json($details);
-    }
+    public function show($transaction_id) {}
 
     /**
      * @OA\Post(
@@ -102,16 +96,24 @@ class DetailTransactionSwaggerController extends Controller
      *         response=201,
      *         description="Detail transaction added successfully",
      *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Detail transaction added successfully",
-     *                 "detail": {
-     *                     "id": 5,
-     *                     "transaction_id": 1,
-     *                     "product_id": 2,
-     *                     "quantity": 3,
-     *                     "status": "pending"
-     *                 }
-     *             }
+     *             @OA\Property(property="message", type="string", example="Detail transaction added successfully"),
+     *             @OA\Property(property="transaction", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="customer_id", type="integer", example=1),
+     *                 @OA\Property(property="total_amount", type="integer", example=50000)
+     *             ),
+     *             @OA\Property(
+     *                 property="details",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *                     @OA\Property(property="transaction_id", type="integer", example=1),
+     *                     @OA\Property(property="product_id", type="integer", example=2),
+     *                     @OA\Property(property="quantity", type="integer", example=3),
+     *                     @OA\Property(property="status", type="string", example="pending"),
+     *                     @OA\Property(property="product", type="object")
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -120,40 +122,7 @@ class DetailTransactionSwaggerController extends Controller
      *     )
      * )
      */
-    public function store(Request $request)
-    {
-        // Hanya admin yang boleh akses
-        if (auth()->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        // Validasi input
-        $validated = $request->validate([
-            'transaction_id' => 'required|exists:transactions,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        // Simpan detail transaksi
-        $detail = DetailTransaction::create([
-            'transaction_id' => $validated['transaction_id'],
-            'product_id' => $validated['product_id'],
-            'quantity' => $validated['quantity'],
-            'status' => 'pending',
-        ]);
-
-        // Ambil data transaksi & detail untuk ditampilkan kembali
-        $transaction = Transaction::findOrFail($validated['transaction_id']);
-        $details = DetailTransaction::where('transaction_id', $validated['transaction_id'])
-            ->with('product')
-            ->get();
-
-        return response()->json([
-            'message' => 'Detail transaction added successfully',
-            'transaction' => $transaction,
-            'details' => $details,
-        ], 201);
-    }
+    public function store(Request $request) {}
 
     /**
      * @OA\Put(
@@ -166,7 +135,6 @@ class DetailTransactionSwaggerController extends Controller
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the detail transaction to update",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
@@ -181,16 +149,14 @@ class DetailTransactionSwaggerController extends Controller
      *         response=200,
      *         description="Detail transaction updated successfully",
      *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Detail transaction updated successfully",
-     *                 "detail": {
-     *                     "id": 1,
-     *                     "transaction_id": 1,
-     *                     "product_id": 1,
-     *                     "quantity": 5,
-     *                     "status": "pending"
-     *                 }
-     *             }
+     *             @OA\Property(property="message", type="string", example="Detail transaction updated successfully"),
+     *             @OA\Property(property="detail", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="transaction_id", type="integer", example=1),
+     *                 @OA\Property(property="product_id", type="integer", example=1),
+     *                 @OA\Property(property="quantity", type="integer", example=5),
+     *                 @OA\Property(property="status", type="string", example="pending")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -199,25 +165,7 @@ class DetailTransactionSwaggerController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
-    {
-        if (auth()->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        $detail = DetailTransaction::findOrFail($id);
-        $detail->quantity = $request->quantity;
-        $detail->save();
-
-        return response()->json([
-            'message' => 'Detail transaction updated successfully',
-            'detail' => $detail,
-        ]);
-    }
+    public function update(Request $request, $id) {}
 
     /**
      * @OA\Delete(
@@ -230,7 +178,6 @@ class DetailTransactionSwaggerController extends Controller
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="ID of the detail transaction to delete",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
@@ -238,9 +185,7 @@ class DetailTransactionSwaggerController extends Controller
      *         response=200,
      *         description="Detail transaction deleted successfully",
      *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Detail transaction deleted successfully"
-     *             }
+     *             @OA\Property(property="message", type="string", example="Detail transaction deleted successfully")
      *         )
      *     ),
      *     @OA\Response(
@@ -249,15 +194,5 @@ class DetailTransactionSwaggerController extends Controller
      *     )
      * )
      */
-    public function destroy($id)
-    {
-        if (auth()->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $detail = DetailTransaction::findOrFail($id);
-        $detail->delete();
-
-        return response()->json(['message' => 'Detail transaction deleted successfully']);
-    }
+    public function destroy($id) {}
 }
