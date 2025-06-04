@@ -1,10 +1,5 @@
 <?php
 
-// ============================================
-// 5. AUTH CUSTOMER CONTROLLER
-// ============================================
-// File: app/Http/Controllers/AuthCustomerController.php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -25,41 +20,40 @@ class AuthCustomerController extends Controller
     }
 
     public function register(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',  // <- Ubah ke users, bukan customers
+                'phone' => 'required|string|max:15',
+                'address' => 'required|string',
+                'password' => 'required|min:6|confirmed',
+            ]);
 
-{
-    try {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',  // <- Ubah ke users, bukan customers
-            'phone' => 'required|string|max:15',
-            'address' => 'required|string',
-            'password' => 'required|min:6|confirmed',
-        ]);
+            $result = $this->authService->register($validated);
 
-        $result = $this->authService->register($validated);
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer registered successfully',
+                'data' => [
+                        'customer' => $result['customer'],
+                    ]
+            ], 201);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Customer registered successfully',
-            'data' => [
-                'customer' => $result['customer'],
-            ]
-        ], 201);
-
-    } catch (ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Registration failed',
-            'error' => $e->getMessage()
-        ], 500);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function login(Request $request)
     {
@@ -75,9 +69,9 @@ class AuthCustomerController extends Controller
                 'success' => true,
                 'message' => 'Login successful',
                 'data' => [
-                    'customer' => $result['customer'],
-                    'token' => $result['token'],
-                ]
+                        'customer' => $result['customer'],
+                        'token' => $result['token'],
+                    ]
             ]);
 
         } catch (ValidationException $e) {
@@ -104,8 +98,8 @@ class AuthCustomerController extends Controller
                 'success' => true,
                 'message' => 'Profile retrieved successfully',
                 'data' => [
-                    'customer' => $customer
-                ]
+                        'customer' => $customer
+                    ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -122,11 +116,11 @@ class AuthCustomerController extends Controller
             $customer = $request->user();
 
             $validated = $request->validate([
-    'name' => 'sometimes|string|max:255',
-    'email' => 'sometimes|email|unique:users,email,' . $customer->user_id, // <- Ubah ke users
-    'phone' => 'sometimes|string|max:15',
-    'address' => 'sometimes|string',
-]);
+                'name' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|unique:users,email,' . $customer->user_id, // <- Ubah ke users
+                'phone' => 'sometimes|string|max:15',
+                'address' => 'sometimes|string',
+            ]);
 
             $updatedCustomer = $this->customerService->updateCustomer($customer, $validated);
 
@@ -134,8 +128,8 @@ class AuthCustomerController extends Controller
                 'success' => true,
                 'message' => 'Profile updated successfully',
                 'data' => [
-                    'customer' => $updatedCustomer
-                ]
+                        'customer' => $updatedCustomer
+                    ]
             ]);
 
         } catch (ValidationException $e) {
