@@ -10,255 +10,94 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
+/**
+ *
+ * @OA\Tag(
+ *     name="Transaction",
+ *     description="API untuk manajemen transaksi customer"
+ * )
+ */
 class TransactionSwaggerController extends Controller
 {
     /**
-     * @OA\Get(
-     *     path="/transactions",
-     *     tags={"Transaction"},
-     *     operationId="listTransactions",
-     *     summary="List all transactions",
-     *     description="Retrieve all transactions with related customers and transaction details",
-     *     security={{"sanctum":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             example={
-     *                 {
-     *                     "id": 1,
-     *                     "customer_id": 1,
-     *                     "grand_total": 250000,
-     *                     "payment_method": "credit_card",
-     *                     "status": "pending",
-     *                     "details": {
-     *                         {
-     *                             "product_id": 2,
-     *                             "quantity": 1,
-     *                             "subtotal": 250000
-     *                         }
-     *                     }
-     *                 }
-     *             }
-     *         )
-     *     )
-     * )
-     */
-    public function index()
-    {
-        $transactions = Transaction::with('customer', 'details.product')->get();
-        return response()->json($transactions);
-    }
-
-
-    /**
      * @OA\Post(
-     *     path="/transactions",
+     *     path="/api/transactions",
      *     tags={"Transaction"},
-     *     operationId="storeTransaction",
-     *     summary="Create a new transaction",
-     *     description="Customer can create a new transaction with multiple products",
+     *     summary="Buat transaksi baru",
+     *     description="Membuat transaksi baru oleh customer, mengurangi stok produk dan menyimpan detail transaksi",
      *     security={{"sanctum":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"customer_id", "payment_method", "details"},
-     *             @OA\Property(property="customer_id", type="integer", example=1),
-     *             @OA\Property(property="payment_method", type="string", example="credit_card"),
+     *             required={"name","email","phone","address","payment_method","products"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="address", type="string", example="Jl. Merdeka No. 1"),
+     *             @OA\Property(property="payment_method", type="string", enum={"cash","credit_card","bank_transfer"}, example="cash"),
      *             @OA\Property(
-     *                 property="details",
+     *                 property="products",
      *                 type="array",
      *                 @OA\Items(
-     *                     @OA\Property(property="product_id", type="integer", example=2),
-     *                     @OA\Property(property="quantity", type="integer", example=1)
+     *                     type="object",
+     *                     required={"product_id","quantity"},
+     *                     @OA\Property(property="product_id", type="integer", example=101),
+     *                     @OA\Property(property="quantity", type="integer", example=2)
      *                 )
      *             )
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Transaction created successfully",
-     *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Transaction created successfully",
-     *                 "transaction": {
-     *                     "id": 1,
-     *                     "customer_id": 1,
-     *                     "grand_total": 250000,
-     *                     "payment_method": "credit_card",
-     *                     "status": "pending",
-     *                     "details": {
-     *                         {
-     *                             "product_id": 2,
-     *                             "quantity": 1,
-     *                             "subtotal": 250000
-     *                         }
-     *                     }
-     *                 }
-     *             }
-     *         )
-     *     )
+     *     @OA\Response(response=201, description="Transaksi berhasil dibuat"),
+     *     @OA\Response(response=422, description="Validasi gagal"),
+     *     @OA\Response(response=500, description="Transaksi gagal")
      * )
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'payment_method' => 'required|string',
-            'details' => 'required|array',
-            'details.*.product_id' => 'required|exists:products,id',
-            'details.*.quantity' => 'required|integer|min:1',
-        ]);
-
-        $grandTotal = 0;
-
-        foreach ($request->details as $detail) {
-            $product = Product::findOrFail($detail['product_id']);
-            $subtotal = $product->price * $detail['quantity'];
-            $grandTotal += $subtotal;
-        }
-
-        $transaction = Transaction::create([
-            'customer_id' => $request->customer_id,
-            'grand_total' => $grandTotal,
-            'payment_method' => $request->payment_method,
-            'status' => 'pending',
-        ]);
-
-        foreach ($request->details as $detail) {
-            $product = Product::findOrFail($detail['product_id']);
-            DetailTransaction::create([
-                'transaction_id' => $transaction->id,
-                'product_id' => $product->id,
-                'quantity' => $detail['quantity'],
-                'subtotal' => $product->price * $detail['quantity'],
-                'status' => 'unpaid',
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Transaction created successfully',
-            'transaction' => $transaction->load('details.product')
-        ], 201);
-    }
+    public function store() {} // dummy
 
     /**
-     * @OA\Put(
-     *     path="/transactions/{id}/status",
+     * @OA\Get(
+     *     path="/api/transactions",
      *     tags={"Transaction"},
-     *     operationId="updateTransactionStatus",
-     *     summary="Update transaction status",
-     *     description="Admin can update the status of a transaction",
+     *     summary="Ambil daftar transaksi customer yang sedang login",
      *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Transaction ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
+     *     @OA\Response(response=200, description="Daftar transaksi berhasil diambil")
+     * )
+     */
+    public function index() {} // dummy
+
+    /**
+     * @OA\Get(
+     *     path="/api/transactions/{id}",
+     *     tags={"Transaction"},
+     *     summary="Ambil detail transaksi berdasarkan ID",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Berhasil mengambil detail transaksi"),
+     *     @OA\Response(response=404, description="Transaksi tidak ditemukan")
+     * )
+     */
+    public function show($id) {} // dummy
+
+    /**
+     * @OA\Patch(
+     *     path="/api/transactions/{id}/status",
+     *     tags={"Transaction"},
+     *     summary="Update status semua detail transaksi",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"status"},
-     *             @OA\Property(property="status", type="string", enum={"pending", "paid", "shipped", "completed", "canceled"}, example="paid")
+     *             @OA\Property(property="status", type="string", enum={"pending","paid","cancelled"}, example="paid")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Transaction status updated",
-     *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Transaction status updated",
-     *                 "transaction": {
-     *                     "id": 1,
-     *                     "status": "paid"
-     *                 }
-     *             }
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=403,
-     *         description="Unauthorized access"
-     *     )
+     *     @OA\Response(response=200, description="Status transaksi berhasil diperbarui"),
+     *     @OA\Response(response=422, description="Validasi status gagal"),
+     *     @OA\Response(response=404, description="Transaksi tidak ditemukan")
      * )
      */
-    public function updateStatus(Request $request, $id)
-    {
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $request->validate([
-            'status' => 'required|string|in:pending,paid,shipped,completed,canceled'
-        ]);
-
-        $transaction = Transaction::findOrFail($id);
-        $transaction->status = $request->status;
-        $transaction->save();
-
-        return response()->json([
-            'message' => 'Transaction status updated',
-            'transaction' => $transaction
-        ]);
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/transactions/{id}/cancel",
-     *     tags={"Transaction"},
-     *     operationId="cancelTransaction",
-     *     summary="Cancel a transaction",
-     *     description="Customer can cancel their own pending transactions",
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Transaction ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Transaction canceled successfully",
-     *         @OA\JsonContent(
-     *             example={
-     *                 "message": "Transaction canceled successfully",
-     *                 "transaction": {
-     *                     "id": 1,
-     *                     "status": "canceled"
-     *                 }
-     *             }
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=403,
-     *         description="Unauthorized access"
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Cannot cancel processed transaction"
-     *     )
-     * )
-     */
-    public function cancel($id)
-    {
-        $transaction = Transaction::findOrFail($id);
-
-        if ($transaction->customer_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        if ($transaction->status !== 'pending') {
-            return response()->json(['message' => 'Cannot cancel transaction that is already processed'], 400);
-        }
-
-        $transaction->status = 'canceled';
-        $transaction->save();
-
-        return response()->json([
-            'message' => 'Transaction canceled successfully',
-            'transaction' => $transaction
-        ]);
-    }
+    public function updateStatus($id) {} // dummy
 }
+

@@ -1,47 +1,427 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API Documentation",
-        "description": "Documentation for the Bookstore API",
+        "title": "E-Commerce API Documentation",
+        "description": "Dokumentasi API e-commerce MK3",
         "contact": {
-            "email": "admin@example.com"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "email": "kamu@example.com"
         },
         "version": "1.0.0"
     },
-    "servers": [
-        {
-            "url": "http://127.0.0.1:8000/api",
-            "description": "API Server"
-        }
-    ],
     "paths": {
-        "/categories": {
+        "/api/admin/register": {
+            "post": {
+                "tags": [
+                    "Auth - Admin"
+                ],
+                "summary": "Register admin baru",
+                "operationId": "d9d33b06557dd8387b91408f67990a0f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Admin Baru"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil register"
+                    },
+                    "500": {
+                        "description": "Gagal register"
+                    }
+                }
+            }
+        },
+        "/api/admin/login": {
+            "post": {
+                "tags": [
+                    "Auth - Admin"
+                ],
+                "summary": "Login admin dan dapatkan token",
+                "operationId": "36a65807d999036719cfae8de188aebe",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/admin/get": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Ambil semua admin",
+                "operationId": "4275198b3ed869955314c777bc48f091",
+                "responses": {
+                    "200": {
+                        "description": "Daftar admin"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/logout": {
+            "post": {
+                "tags": [
+                    "Auth - Admin"
+                ],
+                "summary": "Logout dan hapus semua token",
+                "operationId": "6af39a0428937177fbdc1567f67f7ea0",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil logout"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/delete": {
+            "delete": {
+                "tags": [
+                    "Auth - Admin"
+                ],
+                "summary": "Hapus akun admin",
+                "operationId": "2fc3cbd509d4c56e58a6b2dcb0eba094",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil menghapus akun"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/update-profile": {
+            "put": {
+                "tags": [
+                    "Auth - Admin"
+                ],
+                "summary": "Update profile admin",
+                "operationId": "72063b107b1f48a9391863798adca02e",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Nama Baru"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "emailbaru@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile berhasil diupdate"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/customer/register": {
+            "post": {
+                "tags": [
+                    "Customer Auth"
+                ],
+                "summary": "Register a new customer",
+                "operationId": "784859d9cb00e95f0932a00529e02263",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "address",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Jl. Mawar No. 1"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Customer registered successfully"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    },
+                    "500": {
+                        "description": "Registration failed"
+                    }
+                }
+            }
+        },
+        "/api/customer/login": {
+            "post": {
+                "tags": [
+                    "Customer Auth"
+                ],
+                "summary": "Login customer and get token",
+                "operationId": "771b3016c553bffac97f68c8a9babad9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful"
+                    },
+                    "401": {
+                        "description": "Login failed"
+                    },
+                    "500": {
+                        "description": "Login failed"
+                    }
+                }
+            }
+        },
+        "/api/customer/profile": {
+            "get": {
+                "tags": [
+                    "Customer Auth"
+                ],
+                "summary": "Get authenticated customer profile",
+                "operationId": "75a34bd8cbfca11fbd7b44b528eed47d",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully"
+                    },
+                    "500": {
+                        "description": "Failed to get profile"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/customer/update-profile": {
+            "put": {
+                "tags": [
+                    "Customer Auth"
+                ],
+                "summary": "Update authenticated customer profile",
+                "operationId": "db3da107ad39a984920e9ca72e8dee43",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jane Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jane@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Jl. Anggrek No. 2"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    },
+                    "500": {
+                        "description": "Profile update failed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/customer/logout": {
+            "post": {
+                "tags": [
+                    "Customer Auth"
+                ],
+                "summary": "Logout authenticated customer",
+                "operationId": "b2ea3e5654430383466e91b256e2cc31",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully"
+                    },
+                    "500": {
+                        "description": "Logout failed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/categories": {
             "get": {
                 "tags": [
                     "Category"
                 ],
-                "summary": "List all categories",
-                "description": "Retrieve all product categories",
-                "operationId": "listCategories",
+                "summary": "List all categories for authenticated user's store",
+                "operationId": "12f81356e93a38e569bcaabf766125ca",
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": [
-                                    {
-                                        "id": 1,
-                                        "name": "Electronics",
-                                        "admin_id": 1
-                                    }
-                                ]
-                            }
-                        }
+                        "description": "List of categories"
+                    },
+                    "403": {
+                        "description": "Store not found"
                     }
                 },
                 "security": [
@@ -54,9 +434,8 @@
                 "tags": [
                     "Category"
                 ],
-                "summary": "Create a new category",
-                "description": "Admin only: Create a new product category",
-                "operationId": "storeCategory",
+                "summary": "Create a new category for the authenticated user's store",
+                "operationId": "3b8e6b47908ebe630583907ba002cd75",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -68,7 +447,7 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Gadgets"
+                                        "example": "Minuman"
                                     }
                                 },
                                 "type": "object"
@@ -78,23 +457,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Category created successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Category created successfully",
-                                    "data": {
-                                        "id": 2,
-                                        "name": "Gadgets",
-                                        "admin_id": 1
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Category created successfully"
+                    },
+                    "403": {
+                        "description": "Store not found"
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Category name already exists"
                     }
                 },
                 "security": [
@@ -104,19 +473,17 @@
                 ]
             }
         },
-        "/categories/{id}": {
+        "/api/categories/{id}": {
             "get": {
                 "tags": [
                     "Category"
                 ],
-                "summary": "Get a category by ID",
-                "description": "Retrieve a specific category with its products",
-                "operationId": "showCategory",
+                "summary": "Get a category by ID with its products",
+                "operationId": "ae3e552e807fe5c1779a7e606f04f05a",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the category to retrieve",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -125,23 +492,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "id": 1,
-                                    "name": "Electronics",
-                                    "products": [
-                                        {
-                                            "id": 1,
-                                            "name": "Smartphone",
-                                            "price": 1000000
-                                        }
-                                    ]
-                                }
-                            }
-                        }
+                        "description": "Category retrieved successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized access"
                     },
                     "404": {
                         "description": "Category not found"
@@ -157,14 +511,12 @@
                 "tags": [
                     "Category"
                 ],
-                "summary": "Update a category",
-                "description": "Admin only: Update an existing category",
-                "operationId": "updateCategory",
+                "summary": "Update a category by ID",
+                "operationId": "e10b9b415c6fcc1ac4c6f2737b8153b7",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the category to update",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -176,10 +528,13 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "name"
+                                ],
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Updated Category Name"
+                                        "example": "Makanan Ringan"
                                     }
                                 },
                                 "type": "object"
@@ -189,23 +544,16 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Category updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Category updated successfully",
-                                    "data": {
-                                        "id": 1,
-                                        "name": "Updated Category Name",
-                                        "admin_id": 1
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Category updated successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
                     },
                     "404": {
                         "description": "Category not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -218,14 +566,12 @@
                 "tags": [
                     "Category"
                 ],
-                "summary": "Delete a category",
-                "description": "Admin only: Delete a category if it has no associated products",
-                "operationId": "deleteCategory",
+                "summary": "Delete a category by ID",
+                "operationId": "e0dc29ec1391f8f5b2ef56dff834dc21",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the category to delete",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -234,21 +580,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Category deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Category deleted successfully"
-                                }
-                            }
-                        }
+                        "description": "Category deleted successfully"
                     },
-                    "400": {
-                        "description": "Category cannot be deleted, it has associated products"
+                    "403": {
+                        "description": "Unauthorized"
                     },
                     "404": {
                         "description": "Category not found"
+                    },
+                    "400": {
+                        "description": "Category has products"
                     }
                 },
                 "security": [
@@ -258,41 +599,165 @@
                 ]
             }
         },
-        "/detail-transactions": {
+        "/api/customers": {
             "get": {
                 "tags": [
-                    "DetailTransaction"
+                    "Customer"
                 ],
-                "summary": "List all detail transactions",
-                "description": "Retrieve all detail transactions with their related transaction and product",
-                "operationId": "listDetailTransactions",
+                "summary": "Get all customers",
+                "operationId": "65b11df45be9c59794bcd16fc954163f",
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": [
-                                    {
-                                        "id": 1,
-                                        "transaction_id": 1,
-                                        "product_id": 1,
-                                        "quantity": 2,
-                                        "status": "pending"
-                                    }
-                                ]
-                            }
+                        "description": "Customers retrieved successfully"
+                    },
+                    "500": {
+                        "description": "Failed to retrieve customers"
+                    }
+                }
+            }
+        },
+        "/api/customers/{id}": {
+            "get": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Get a customer by ID",
+                "operationId": "29f5d1941de725dad4d13c63003437cb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Customer not found"
                     }
                 }
             },
+            "put": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Update a customer",
+                "operationId": "d939bbb1a5f718f7497816dbeff9477c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jane Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jane@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Jl. Anggrek No. 2"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Customer updated successfully"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    },
+                    "500": {
+                        "description": "Failed to update customer"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Delete a customer",
+                "operationId": "f5b3da24dbfb3e9e7cfe5f98420160c6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer deleted successfully"
+                    },
+                    "500": {
+                        "description": "Failed to delete customer"
+                    }
+                }
+            }
+        },
+        "/api/detail-transactions": {
+            "get": {
+                "tags": [
+                    "Detail Transactions"
+                ],
+                "summary": "Get all detail transactions (Admin only)",
+                "operationId": "9c1687f675014b8aacae056ff861a53a",
+                "responses": {
+                    "200": {
+                        "description": "List of detail transactions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
-                    "DetailTransaction"
+                    "Detail Transactions"
                 ],
-                "summary": "Add a new detail transaction",
-                "description": "Admin only: Create a new detail transaction",
-                "operationId": "storeDetailTransaction",
+                "summary": "Create a new detail transaction (Admin only)",
+                "operationId": "1922ba19ae1189f7702a9763e104cf27",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -324,19 +789,11 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Detail transaction added successfully",
+                        "description": "Detail transaction created",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Detail transaction added successfully",
-                                    "detail": {
-                                        "id": 5,
-                                        "transaction_id": 1,
-                                        "product_id": 2,
-                                        "quantity": 3,
-                                        "status": "pending"
-                                    }
+                                "schema": {
+                                    "type": "object"
                                 }
                             }
                         }
@@ -347,73 +804,68 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/detail-transactions/{transaction_id}": {
+        "/api/detail-transactions/{transaction_id}": {
             "get": {
                 "tags": [
-                    "DetailTransaction"
+                    "Detail Transactions"
                 ],
-                "summary": "Show details of a specific transaction",
-                "description": "Retrieve detail transactions by transaction ID",
-                "operationId": "showDetailTransaction",
+                "summary": "Get details of a specific transaction (Admin only)",
+                "operationId": "747c18a8f5e92964cd5c8d04b0bfa188",
                 "parameters": [
                     {
                         "name": "transaction_id",
                         "in": "path",
-                        "description": "ID of the transaction",
+                        "description": "Transaction ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Detail transaction found",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "transaction": {
-                                        "id": 1,
-                                        "customer_id": 1,
-                                        "total_amount": 50000
-                                    },
-                                    "details": [
-                                        {
-                                            "id": 1,
-                                            "product_id": 1,
-                                            "quantity": 2,
-                                            "status": "pending"
-                                        }
-                                    ]
+                                "schema": {
+                                    "type": "object"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Transaction not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/detail-transactions/{id}": {
+        "/api/detail-transactions/{id}": {
             "put": {
                 "tags": [
-                    "DetailTransaction"
+                    "Detail Transactions"
                 ],
-                "summary": "Update a detail transaction",
-                "description": "Admin only: Update quantity of a detail transaction",
-                "operationId": "updateDetailTransaction",
+                "summary": "Update a detail transaction quantity (Admin only)",
+                "operationId": "2aef912f0bb47e8d5de0eba43b56e573",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the detail transaction to update",
+                        "description": "Detail transaction ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -438,19 +890,11 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Detail transaction updated successfully",
+                        "description": "Detail transaction updated",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Detail transaction updated successfully",
-                                    "detail": {
-                                        "id": 1,
-                                        "transaction_id": 1,
-                                        "product_id": 1,
-                                        "quantity": 5,
-                                        "status": "pending"
-                                    }
+                                "schema": {
+                                    "type": "object"
                                 }
                             }
                         }
@@ -461,36 +905,41 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
             "delete": {
                 "tags": [
-                    "DetailTransaction"
+                    "Detail Transactions"
                 ],
-                "summary": "Delete a detail transaction",
-                "description": "Admin only: Delete a detail transaction by ID",
-                "operationId": "deleteDetailTransaction",
+                "summary": "Delete a detail transaction (Admin only)",
+                "operationId": "e6651629ea53c263fc342e3e631c9308",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of the detail transaction to delete",
+                        "description": "Detail transaction ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detail transaction deleted successfully",
+                        "description": "Detail transaction deleted",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Detail transaction deleted successfully"
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Detail transaction deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -501,53 +950,30 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/products": {
+        "/api/products": {
             "get": {
                 "tags": [
-                    "Product"
+                    "Products"
                 ],
-                "summary": "List Products",
-                "description": "Retrieve a list of products",
-                "operationId": "listProduct",
+                "summary": "Get all products",
+                "operationId": "30c7b3299503ab1f87e3c50471bc019c",
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": [
-                                    {
-                                        "id": 1,
-                                        "name": "Product A",
-                                        "price": 10000,
-                                        "stock": 50,
-                                        "category_id": 1
-                                    },
-                                    {
-                                        "id": 2,
-                                        "name": "Product B",
-                                        "price": 20000,
-                                        "stock": 30,
-                                        "category_id": 2
-                                    }
-                                ]
-                            }
-                        }
+                        "description": "List of products"
                     }
                 }
             },
             "post": {
                 "tags": [
-                    "Product"
+                    "Products"
                 ],
-                "summary": "Create a new Product",
-                "description": "Create a new product record",
-                "operationId": "createProduct",
+                "summary": "Create a new product",
+                "operationId": "793ea2722d9952145061b55818bcf8b2",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -562,15 +988,15 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "New Product"
+                                        "example": "Laptop XYZ"
                                     },
                                     "price": {
                                         "type": "number",
-                                        "example": 15000
+                                        "example": 2500000
                                     },
                                     "stock": {
                                         "type": "integer",
-                                        "example": 100
+                                        "example": 10
                                     },
                                     "category_id": {
                                         "type": "integer",
@@ -584,22 +1010,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Product created successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Product created successfully",
-                                    "data": {
-                                        "id": 3,
-                                        "name": "New Product",
-                                        "price": 15000,
-                                        "stock": 100,
-                                        "category_id": 1
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Product created successfully"
+                    },
+                    "403": {
+                        "description": "You must create a store first"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -609,19 +1026,17 @@
                 ]
             }
         },
-        "/products/{id}": {
+        "/api/products/{id}": {
             "get": {
                 "tags": [
-                    "Product"
+                    "Products"
                 ],
-                "summary": "Get a Product by ID",
-                "description": "Retrieve a single product by its ID",
-                "operationId": "getProduct",
+                "summary": "Get product by ID",
+                "operationId": "4528988709453892288aa914757b58ab",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of product",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -630,19 +1045,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "id": 1,
-                                    "name": "Product A",
-                                    "price": 10000,
-                                    "stock": 50,
-                                    "category_id": 1
-                                }
-                            }
-                        }
+                        "description": "Product found"
                     },
                     "404": {
                         "description": "Product not found"
@@ -651,16 +1054,14 @@
             },
             "put": {
                 "tags": [
-                    "Product"
+                    "Products"
                 ],
-                "summary": "Update a Product",
-                "description": "Update an existing product",
-                "operationId": "updateProduct",
+                "summary": "Update product by ID",
+                "operationId": "10cbb4a34deba32981a843920fd08643",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of product to update",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -668,22 +1069,21 @@
                     }
                 ],
                 "requestBody": {
-                    "required": false,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Updated Product"
+                                        "example": "Laptop Updated"
                                     },
                                     "price": {
                                         "type": "number",
-                                        "example": 17000
+                                        "example": 2700000
                                     },
                                     "stock": {
                                         "type": "integer",
-                                        "example": 60
+                                        "example": 12
                                     },
                                     "category_id": {
                                         "type": "integer",
@@ -697,22 +1097,10 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Product updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Product updated successfully",
-                                    "data": {
-                                        "id": 1,
-                                        "name": "Updated Product",
-                                        "price": 17000,
-                                        "stock": 60,
-                                        "category_id": 2
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Product updated successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
                     },
                     "404": {
                         "description": "Product not found"
@@ -726,16 +1114,14 @@
             },
             "delete": {
                 "tags": [
-                    "Product"
+                    "Products"
                 ],
-                "summary": "Delete a Product",
-                "description": "Delete a product by ID",
-                "operationId": "deleteProduct",
+                "summary": "Delete product by ID",
+                "operationId": "06e6105dc4d319cdfc1abfa33da9586b",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID of product to delete",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -744,15 +1130,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Product deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Product deleted successfully"
-                                }
-                            }
-                        }
+                        "description": "Product deleted successfully"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
                     },
                     "404": {
                         "description": "Product not found"
@@ -765,38 +1146,469 @@
                 ]
             }
         },
-        "/transactions": {
+        "/api/products/category/{categoryId}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get products by category",
+                "operationId": "4398f8bd00fe90504c454f7cb24c2ed3",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Products found"
+                    },
+                    "404": {
+                        "description": "No products found"
+                    }
+                }
+            }
+        },
+        "/api/products/store/{storeId}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get products by store",
+                "operationId": "6c00951e31a04bf613df2bcb92b3cc99",
+                "parameters": [
+                    {
+                        "name": "storeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Products found"
+                    },
+                    "404": {
+                        "description": "No products found"
+                    }
+                }
+            }
+        },
+        "/api/sales-report": {
+            "get": {
+                "tags": [
+                    "SalesReport"
+                ],
+                "summary": "Mendapatkan laporan penjualan berdasarkan store milik admin yang login",
+                "description": "Mengembalikan list produk beserta total quantity terjual dan total penjualan (dalam rupiah) untuk toko admin saat ini",
+                "operationId": "4e6c75d4bc3a30e82b54fedcb43676b8",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mendapatkan laporan penjualan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "store_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "admin_id": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "sales_report": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "product_id": {
+                                                        "type": "integer",
+                                                        "example": 101
+                                                    },
+                                                    "product_name": {
+                                                        "type": "string",
+                                                        "example": "Produk A"
+                                                    },
+                                                    "total_quantity": {
+                                                        "type": "integer",
+                                                        "example": 50
+                                                    },
+                                                    "total_sales": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 1500000
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized, token tidak valid atau tidak login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Kesalahan server internal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/stores": {
+            "put": {
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Update the store owned by the authenticated admin",
+                "operationId": "1bf70221363da04e761dc881cb73cdbc",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Updated Store Name"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated description"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Store updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store updated successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Store not found to update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You have no store to update"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Create a new store for admin",
+                "operationId": "f962579dc19e9a4b0c8add773e86df27",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "My Store"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "This is my new store"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Store created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store created successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Store already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You already have a store"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Delete the store owned by the authenticated admin",
+                "operationId": "22ab97c0852cde618a65e71ce5bc3822",
+                "responses": {
+                    "200": {
+                        "description": "Store deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Store not found to delete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You have no store to delete"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/stores/my-store": {
+            "get": {
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Get the store owned by the authenticated admin",
+                "operationId": "5519b65b1eb539062b4b0ffff061a5cb",
+                "responses": {
+                    "200": {
+                        "description": "Store retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Store not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You have no store yet"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/stores/{id}": {
+            "get": {
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Get store by ID",
+                "operationId": "7eddc661a2f47f6b26ef51a68501d383",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Store ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Store retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Store not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/transactions": {
             "get": {
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "List all transactions",
-                "description": "Retrieve all transactions with related customers and transaction details",
-                "operationId": "listTransactions",
+                "summary": "Ambil daftar transaksi customer yang sedang login",
+                "operationId": "7e07cc202ed677881195e1df63ca2991",
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": [
-                                    {
-                                        "id": 1,
-                                        "customer_id": 1,
-                                        "grand_total": 250000,
-                                        "payment_method": "credit_card",
-                                        "status": "pending",
-                                        "details": [
-                                            {
-                                                "product_id": 2,
-                                                "quantity": 1,
-                                                "subtotal": 250000
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                        "description": "Daftar transaksi berhasil diambil"
                     }
                 },
                 "security": [
@@ -809,39 +1621,64 @@
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "Create a new transaction",
-                "description": "Customer can create a new transaction with multiple products",
-                "operationId": "storeTransaction",
+                "summary": "Buat transaksi baru",
+                "description": "Membuat transaksi baru oleh customer, mengurangi stok produk dan menyimpan detail transaksi",
+                "operationId": "a6ed73bc29cdce8903f4822f3e2f6a24",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "customer_id",
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "address",
                                     "payment_method",
-                                    "details"
+                                    "products"
                                 ],
                                 "properties": {
-                                    "customer_id": {
-                                        "type": "integer",
-                                        "example": 1
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 1"
                                     },
                                     "payment_method": {
                                         "type": "string",
-                                        "example": "credit_card"
+                                        "enum": [
+                                            "cash",
+                                            "credit_card",
+                                            "bank_transfer"
+                                        ],
+                                        "example": "cash"
                                     },
-                                    "details": {
+                                    "products": {
                                         "type": "array",
                                         "items": {
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
                                             "properties": {
                                                 "product_id": {
                                                     "type": "integer",
-                                                    "example": 2
+                                                    "example": 101
                                                 },
                                                 "quantity": {
                                                     "type": "integer",
-                                                    "example": 1
+                                                    "example": 2
                                                 }
                                             },
                                             "type": "object"
@@ -855,29 +1692,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Transaction created successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Transaction created successfully",
-                                    "transaction": {
-                                        "id": 1,
-                                        "customer_id": 1,
-                                        "grand_total": 250000,
-                                        "payment_method": "credit_card",
-                                        "status": "pending",
-                                        "details": [
-                                            {
-                                                "product_id": 2,
-                                                "quantity": 1,
-                                                "subtotal": 250000
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Transaksi berhasil dibuat"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    },
+                    "500": {
+                        "description": "Transaksi gagal"
                     }
                 },
                 "security": [
@@ -887,19 +1708,49 @@
                 ]
             }
         },
-        "/transactions/{id}/status": {
-            "put": {
+        "/api/transactions/{id}": {
+            "get": {
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "Update transaction status",
-                "description": "Admin can update the status of a transaction",
-                "operationId": "updateTransactionStatus",
+                "summary": "Ambil detail transaksi berdasarkan ID",
+                "operationId": "7ffb0c851e0a20910cc9a97155724f21",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "Transaction ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil detail transaksi"
+                    },
+                    "404": {
+                        "description": "Transaksi tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/transactions/{id}/status": {
+            "patch": {
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Update status semua detail transaksi",
+                "operationId": "12d8e93d198d062980cc082133781b71",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -920,9 +1771,7 @@
                                         "enum": [
                                             "pending",
                                             "paid",
-                                            "shipped",
-                                            "completed",
-                                            "canceled"
+                                            "cancelled"
                                         ],
                                         "example": "paid"
                                     }
@@ -934,22 +1783,13 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Transaction status updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Transaction status updated",
-                                    "transaction": {
-                                        "id": 1,
-                                        "status": "paid"
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Status transaksi berhasil diperbarui"
                     },
-                    "403": {
-                        "description": "Unauthorized access"
+                    "422": {
+                        "description": "Validasi status gagal"
+                    },
+                    "404": {
+                        "description": "Transaksi tidak ditemukan"
                     }
                 },
                 "security": [
@@ -958,196 +1798,91 @@
                     }
                 ]
             }
-        },
-        "/transactions/{id}/cancel": {
-            "post": {
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Cancel a transaction",
-                "description": "Customer can cancel their own pending transactions",
-                "operationId": "cancelTransaction",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Transaction ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Transaction canceled successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "message": "Transaction canceled successfully",
-                                    "transaction": {
-                                        "id": 1,
-                                        "status": "canceled"
-                                    }
-                                }
-                            }
-                        }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Store": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
                     },
-                    "403": {
-                        "description": "Unauthorized access"
+                    "name": {
+                        "type": "string",
+                        "example": "My Store"
                     },
-                    "400": {
-                        "description": "Cannot cancel processed transaction"
+                    "description": {
+                        "type": "string",
+                        "example": "My toko description"
+                    },
+                    "admin_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                "type": "object"
             }
         },
-        "/api/customers": {
-            "get": {
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Get all customers",
-                "operationId": "2b23ac696cfd81c23807c2c1fd63b0b0",
-                "responses": {
-                    "200": {
-                        "description": "Successful operation"
-                    }
-                }
-            }
-        },
-        "/api/customers/{id}": {
-            "get": {
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Get a customer by ID",
-                "operationId": "d51ce35bfe185b82c242dd4443ffba54",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Customer ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Customer data"
-                    },
-                    "404": {
-                        "description": "Customer not found"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Update a customer",
-                "operationId": "07a3f33c1373d3c6a97b7d8846d81472",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Customer ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "phone": {
-                                        "type": "string"
-                                    },
-                                    "address": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Customer updated successfully"
-                    },
-                    "404": {
-                        "description": "Customer not found"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Delete a customer",
-                "operationId": "634844e24d72540f608f7fd297f5d8b0",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Customer ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Customer deleted successfully"
-                    },
-                    "404": {
-                        "description": "Customer not found"
-                    }
-                }
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Bearer Token via Sanctum",
+                "name": "Authorization",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },
     "tags": [
         {
+            "name": "Products",
+            "description": "API untuk manajemen produk"
+        },
+        {
+            "name": "SalesReport",
+            "description": "API untuk laporan penjualan per toko admin"
+        },
+        {
+            "name": "Transaction",
+            "description": "API untuk manajemen transaksi customer"
+        },
+        {
+            "name": "Auth - Admin",
+            "description": "Auth - Admin"
+        },
+        {
+            "name": "Admin",
+            "description": "Admin"
+        },
+        {
+            "name": "Customer Auth",
+            "description": "Customer Auth"
+        },
+        {
             "name": "Category",
             "description": "Category"
         },
         {
-            "name": "DetailTransaction",
-            "description": "DetailTransaction"
+            "name": "Customer",
+            "description": "Customer"
         },
         {
-            "name": "Product",
-            "description": "Product"
+            "name": "Detail Transactions",
+            "description": "Detail Transactions"
         },
         {
-            "name": "Transaction",
-            "description": "Transaction"
-        },
-        {
-            "name": "Customers",
-            "description": "Customers"
+            "name": "Stores",
+            "description": "Stores"
         }
     ]
 }

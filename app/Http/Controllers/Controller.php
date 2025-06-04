@@ -26,6 +26,18 @@ use Illuminate\Routing\Controller as BaseController;
  *     description="API Server"
  * )
  */
+
+ /**
+ * @OA\SecurityScheme(
+ *     type="http",
+ *     description="Bearer Token via Sanctum",
+ *     name="Authorization",
+ *     in="header",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     securityScheme="sanctum"
+ * )
+ */
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;

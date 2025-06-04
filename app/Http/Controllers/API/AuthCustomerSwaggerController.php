@@ -11,207 +11,91 @@ class AuthCustomerSwaggerController extends Controller
      * @OA\Post(
      *     path="/api/customer/register",
      *     summary="Register a new customer",
-     *     tags={"Customer Authentication"},
+     *     tags={"Customer Auth"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="address", type="string"),
-     *             @OA\Property(property="password", type="string"),
-     *             @OA\Property(property="password_confirmation", type="string")
+     *             required={"name","email","phone","address","password","password_confirmation"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="address", type="string", example="Jl. Mawar No. 1"),
+     *             @OA\Property(property="password", type="string", format="password", example="secret123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="secret123")
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Customer registered successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="user", type="object"),
-     *             @OA\Property(property="customer", type="object"),
-     *             @OA\Property(property="token", type="string")
-     *         )
+     *         description="Customer registered successfully"
      *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid input"
-     *     )
+     *     @OA\Response(response=422, description="Validation failed"),
+     *     @OA\Response(response=500, description="Registration failed")
      * )
      */
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email', // <- validasi ke tabel users
-            'phone' => 'required|string|max:15',
-            'address' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        $result = $this->authService->register($request->all());
-
-        return response()->json([
-            'message' => 'Customer registered successfully',
-            'user' => $result['user'],
-            'customer' => $result['customer'],
-            'token' => $result['token'],
-        ], 201);
-    }
+    public function register() {}
 
     /**
      * @OA\Post(
      *     path="/api/customer/login",
-     *     summary="Login a customer",
-     *     tags={"Customer Authentication"},
+     *     summary="Login customer and get token",
+     *     tags={"Customer Auth"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="password", type="string")
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="secret123")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Login successful",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="user", type="object"),
-     *             @OA\Property(property="customer", type="object"),
-     *             @OA\Property(property="token", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Invalid credentials"
-     *     )
+     *     @OA\Response(response=200, description="Login successful"),
+     *     @OA\Response(response=401, description="Login failed"),
+     *     @OA\Response(response=500, description="Login failed")
      * )
      */
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $result = $this->authService->login($request->email, $request->password);
-
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $result['user'],
-            'customer' => $result['customer'],
-            'token' => $result['token'],
-        ]);
-    }
-
-    /**
-     * @OA\Put(
-     *     path="/api/customer/profile",
-     *     summary="Update customer profile",
-     *     tags={"Customer Authentication"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="address", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Profile updated successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="user", type="object"),
-     *             @OA\Property(property="customer", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid input"
-     *     )
-     * )
-     */
-    public function updateProfile(Request $request)
-    {
-        $user = auth()->user();
-        $customer = $user->customer;
-
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'phone' => 'sometimes|string|max:15',
-            'address' => 'sometimes|string',
-        ]);
-
-        // Update data user
-        $user->update($request->only('email'));
-
-        // Update data customer
-        $customer->update($request->only('name', 'phone', 'address'));
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'user' => $user,
-            'customer' => $customer,
-        ]);
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/api/customer/logout",
-     *     summary="Logout customer",
-     *     tags={"Customer Authentication"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Logged out successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Logout failed"
-     *     )
-     * )
-     */
-    public function logout(Request $request)
-    {
-        $this->authService->logout($request->user());
-
-        return response()->json(['message' => 'Logged out successfully']);
-    }
+    public function login() {}
 
     /**
      * @OA\Get(
      *     path="/api/customer/profile",
-     *     summary="Get customer profile",
-     *     tags={"Customer Authentication"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Profile retrieved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="user", type="object"),
-     *             @OA\Property(property="customer", type="object"),
-     *             @OA\Property(property="role", type="array", @OA\Items(type="string"))
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized"
-     *     )
+     *     summary="Get authenticated customer profile",
+     *     tags={"Customer Auth"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Profile retrieved successfully"),
+     *     @OA\Response(response=500, description="Failed to get profile")
      * )
      */
-    public function profile(Request $request)
-    {
-        $user = auth()->user();
-        $customer = $user->customer;
+    public function profile() {}
 
-        return response()->json([
-            'user' => $user,
-            'customer' => $customer,
-            'role' => $user->getRoleNames()
-        ]);
-    }
+    /**
+     * @OA\Put(
+     *     path="/api/customer/update-profile",
+     *     summary="Update authenticated customer profile",
+     *     tags={"Customer Auth"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="address", type="string", example="Jl. Anggrek No. 2")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Profile updated successfully"),
+     *     @OA\Response(response=422, description="Validation failed"),
+     *     @OA\Response(response=500, description="Profile update failed")
+     * )
+     */
+    public function updateProfile() {}
+
+    /**
+     * @OA\Post(
+     *     path="/api/customer/logout",
+     *     summary="Logout authenticated customer",
+     *     tags={"Customer Auth"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Logged out successfully"),
+     *     @OA\Response(response=500, description="Logout failed")
+     * )
+     */
+    public function logout() {}
 }

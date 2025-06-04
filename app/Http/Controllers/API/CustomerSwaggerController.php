@@ -19,131 +19,70 @@ class CustomerSwaggerController extends Controller
      * @OA\Get(
      *     path="/api/customers",
      *     summary="Get all customers",
-     *     tags={"Customers"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation"
-     *     )
+     *     tags={"Customer"},
+     *     @OA\Response(response=200, description="Customers retrieved successfully"),
+     *     @OA\Response(response=500, description="Failed to retrieve customers")
      * )
      */
-    public function index()
-    {
-        $customers = $this->customerService->getAll();
-        return response()->json($customers);
-    }
+    public function index() {}
 
     /**
      * @OA\Get(
      *     path="/api/customers/{id}",
      *     summary="Get a customer by ID",
-     *     tags={"Customers"},
+     *     tags={"Customer"},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Customer ID",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Customer data"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Customer not found"
-     *     )
+     *     @OA\Response(response=200, description="Customer retrieved successfully"),
+     *     @OA\Response(response=404, description="Customer not found")
      * )
      */
-    public function show($id)
-    {
-        $customer = $this->customerService->findById($id);
-
-        if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
-        return response()->json($customer);
-    }
+    public function show() {}
 
     /**
      * @OA\Put(
      *     path="/api/customers/{id}",
      *     summary="Update a customer",
-     *     tags={"Customers"},
+     *     tags={"Customer"},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Customer ID",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\RequestBody(
-     *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="address", type="string")
+     *             @OA\Property(property="name", type="string", example="Jane Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="address", type="string", example="Jl. Anggrek No. 2")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Customer updated successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Customer not found"
-     *     )
+     *     @OA\Response(response=200, description="Customer updated successfully"),
+     *     @OA\Response(response=422, description="Validation failed"),
+     *     @OA\Response(response=500, description="Failed to update customer")
      * )
      */
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name'    => 'sometimes|string|max:255',
-            'email'   => 'sometimes|email|unique:customers,email,' . $id . ',id_customer',
-            'phone'   => 'sometimes|string|max:15',
-            'address' => 'sometimes|string',
-        ]);
-
-        $customer = $this->customerService->update($id, $request->all());
-
-        if (!$customer) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
-        return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
-    }
+    public function update() {}
 
     /**
      * @OA\Delete(
      *     path="/api/customers/{id}",
      *     summary="Delete a customer",
-     *     tags={"Customers"},
+     *     tags={"Customer"},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Customer ID",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Customer deleted successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Customer not found"
-     *     )
+     *     @OA\Response(response=200, description="Customer deleted successfully"),
+     *     @OA\Response(response=500, description="Failed to delete customer")
      * )
      */
-    public function destroy($id)
-    {
-        $deleted = $this->customerService->delete($id);
-
-        if (!$deleted) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
-        return response()->json(['message' => 'Customer deleted successfully']);
-    }
+    public function destroy() {}
 }
