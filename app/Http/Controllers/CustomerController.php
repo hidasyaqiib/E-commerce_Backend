@@ -1,10 +1,5 @@
 <?php
 
-// ============================================
-// 6. CUSTOMER CRUD CONTROLLER
-// ============================================
-// File: app/Http/Controllers/CustomerController.php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -20,11 +15,12 @@ class CustomerController extends Controller
         $this->customerService = $customerService;
     }
 
+
     public function index()
     {
         try {
             $customers = $this->customerService->getAllCustomers();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Customers retrieved successfully',
@@ -43,7 +39,7 @@ class CustomerController extends Controller
     {
         try {
             $customer = $this->customerService->getCustomer($id);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Customer retrieved successfully',
@@ -62,7 +58,7 @@ class CustomerController extends Controller
     {
         try {
             $customer = $this->customerService->getCustomer($id);
-            
+
             $validated = $request->validate([
                 'name' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|unique:customers,email,' . $id,
@@ -97,7 +93,7 @@ class CustomerController extends Controller
     {
         try {
             $this->customerService->deleteCustomer($id);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Customer deleted successfully'

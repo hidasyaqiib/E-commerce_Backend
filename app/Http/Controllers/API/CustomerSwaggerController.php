@@ -4,7 +4,18 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use App\Services\CustomerService;
+use App\Services\AuthCustomerService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Customer;
+/**
+ * @OA\Tag(
+ *     name="Customer",
+ *     description="API untuk manajemen pelanggan"
+ * )
+ */
 
 class CustomerSwaggerController extends Controller
 {
@@ -24,7 +35,24 @@ class CustomerSwaggerController extends Controller
      *     @OA\Response(response=500, description="Failed to retrieve customers")
      * )
      */
-    public function index() {}
+    public function index()
+    {
+        try {
+            $customers = $this->customerService->getAllCustomers();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Customers retrieved successfully',
+                'data' => $customers
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve customers',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     /**
      * @OA\Get(
@@ -41,48 +69,22 @@ class CustomerSwaggerController extends Controller
      *     @OA\Response(response=404, description="Customer not found")
      * )
      */
-    public function show() {}
+    public function show($id)
+    {
+        try {
+            $customer = $this->customerService->getCustomer($id);
 
-    /**
-     * @OA\Put(
-     *     path="/api/customers/{id}",
-     *     summary="Update a customer",
-     *     tags={"Customer"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="Jane Doe"),
-     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
-     *             @OA\Property(property="phone", type="string", example="08123456789"),
-     *             @OA\Property(property="address", type="string", example="Jl. Anggrek No. 2")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Customer updated successfully"),
-     *     @OA\Response(response=422, description="Validation failed"),
-     *     @OA\Response(response=500, description="Failed to update customer")
-     * )
-     */
-    public function update() {}
-
-    /**
-     * @OA\Delete(
-     *     path="/api/customers/{id}",
-     *     summary="Delete a customer",
-     *     tags={"Customer"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Customer deleted successfully"),
-     *     @OA\Response(response=500, description="Failed to delete customer")
-     * )
-     */
-    public function destroy() {}
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer retrieved successfully',
+                'data' => $customer
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
 }

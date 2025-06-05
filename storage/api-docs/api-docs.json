@@ -1,10 +1,10 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "E-Commerce API Documentation",
-        "description": "Dokumentasi API e-commerce MK3",
+        "title": "API E-Commerce Documentation",
+        "description": "Dokumentasi API untuk proyek e-commerce Laravel",
         "contact": {
-            "email": "kamu@example.com"
+            "email": "kamu@email.com"
         },
         "version": "1.0.0"
     },
@@ -12,9 +12,9 @@
         "/api/admin/register": {
             "post": {
                 "tags": [
-                    "Auth - Admin"
+                    "Admin"
                 ],
-                "summary": "Register admin baru",
+                "summary": "Register a new admin",
                 "operationId": "d9d33b06557dd8387b91408f67990a0f",
                 "requestBody": {
                     "required": true,
@@ -29,15 +29,15 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Admin Baru"
+                                        "maxLength": 255
                                     },
                                     "email": {
                                         "type": "string",
-                                        "example": "admin@example.com"
+                                        "format": "email"
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "password123"
+                                        "minLength": 6
                                     }
                                 },
                                 "type": "object"
@@ -47,10 +47,60 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Berhasil register"
+                        "description": "Admin registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "admin": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Gagal register"
+                        "description": "Registration failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -58,9 +108,9 @@
         "/api/admin/login": {
             "post": {
                 "tags": [
-                    "Auth - Admin"
+                    "Admin"
                 ],
-                "summary": "Login admin dan dapatkan token",
+                "summary": "Login admin and generate token",
                 "operationId": "36a65807d999036719cfae8de188aebe",
                 "requestBody": {
                     "required": true,
@@ -74,11 +124,10 @@
                                 "properties": {
                                     "email": {
                                         "type": "string",
-                                        "example": "admin@example.com"
+                                        "format": "email"
                                     },
                                     "password": {
-                                        "type": "string",
-                                        "example": "password123"
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -88,43 +137,161 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Login berhasil"
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "admin": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
         },
-        "/api/admin/get": {
+        "/api/admins": {
             "get": {
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Ambil semua admin",
-                "operationId": "4275198b3ed869955314c777bc48f091",
+                "summary": "Get admins list",
+                "operationId": "f838d37856f30917158b0f95056fac41",
                 "responses": {
                     "200": {
-                        "description": "Daftar admin"
+                        "description": "Admins retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "format": "email"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
         "/api/admin/logout": {
             "post": {
                 "tags": [
-                    "Auth - Admin"
+                    "Admin"
                 ],
-                "summary": "Logout dan hapus semua token",
+                "summary": "Logout admin and delete tokens",
                 "operationId": "6af39a0428937177fbdc1567f67f7ea0",
                 "responses": {
                     "200": {
-                        "description": "Berhasil logout"
+                        "description": "Logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -137,13 +304,25 @@
         "/api/admin/delete": {
             "delete": {
                 "tags": [
-                    "Auth - Admin"
+                    "Admin"
                 ],
-                "summary": "Hapus akun admin",
-                "operationId": "2fc3cbd509d4c56e58a6b2dcb0eba094",
+                "summary": "Delete authenticated admin account",
+                "operationId": "27eb5a312809681a4181a487cd020f2c",
                 "responses": {
                     "200": {
-                        "description": "Berhasil menghapus akun"
+                        "description": "Admin account deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -153,33 +332,34 @@
                 ]
             }
         },
-        "/api/admin/update-profile": {
+        "/api/admin/profile": {
             "put": {
                 "tags": [
-                    "Auth - Admin"
+                    "Admin"
                 ],
-                "summary": "Update profile admin",
-                "operationId": "72063b107b1f48a9391863798adca02e",
+                "summary": "Update authenticated admin profile",
+                "operationId": "323eaf7bbb36ad1540d333cb73741887",
                 "requestBody": {
+                    "required": false,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Nama Baru"
+                                        "maxLength": 255
                                     },
                                     "email": {
                                         "type": "string",
-                                        "example": "emailbaru@example.com"
+                                        "format": "email"
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "newpassword123"
+                                        "minLength": 6
                                     },
                                     "password_confirmation": {
                                         "type": "string",
-                                        "example": "newpassword123"
+                                        "minLength": 6
                                     }
                                 },
                                 "type": "object"
@@ -189,7 +369,42 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Profile berhasil diupdate"
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "admin": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -202,7 +417,7 @@
         "/api/customer/register": {
             "post": {
                 "tags": [
-                    "Customer Auth"
+                    "Customer"
                 ],
                 "summary": "Register a new customer",
                 "operationId": "784859d9cb00e95f0932a00529e02263",
@@ -269,7 +484,7 @@
         "/api/customer/login": {
             "post": {
                 "tags": [
-                    "Customer Auth"
+                    "Customer"
                 ],
                 "summary": "Login customer and get token",
                 "operationId": "771b3016c553bffac97f68c8a9babad9",
@@ -304,7 +519,7 @@
                         "description": "Login successful"
                     },
                     "401": {
-                        "description": "Login failed"
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Login failed"
@@ -315,7 +530,7 @@
         "/api/customer/profile": {
             "get": {
                 "tags": [
-                    "Customer Auth"
+                    "Customer"
                 ],
                 "summary": "Get authenticated customer profile",
                 "operationId": "75a34bd8cbfca11fbd7b44b528eed47d",
@@ -337,7 +552,7 @@
         "/api/customer/update-profile": {
             "put": {
                 "tags": [
-                    "Customer Auth"
+                    "Customer"
                 ],
                 "summary": "Update authenticated customer profile",
                 "operationId": "db3da107ad39a984920e9ca72e8dee43",
@@ -390,7 +605,7 @@
         "/api/customer/logout": {
             "post": {
                 "tags": [
-                    "Customer Auth"
+                    "Customer"
                 ],
                 "summary": "Logout authenticated customer",
                 "operationId": "b2ea3e5654430383466e91b256e2cc31",
@@ -409,6 +624,86 @@
                 ]
             }
         },
+        "/api/customer/delete": {
+            "delete": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Delete authenticated customer account",
+                "operationId": "7bbcdc840e54e54776ba147c4b9d0c22",
+                "responses": {
+                    "200": {
+                        "description": "Customer account deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Customer account deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete customer account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete customer"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/categories": {
             "get": {
                 "tags": [
@@ -418,17 +713,35 @@
                 "operationId": "12f81356e93a38e569bcaabf766125ca",
                 "responses": {
                     "200": {
-                        "description": "List of categories"
+                        "description": "List of categories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Category"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Store not found"
+                        "description": "Store not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You must create a store first"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             },
             "post": {
                 "tags": [
@@ -457,13 +770,55 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Category created successfully"
+                        "description": "Category created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Store not found"
+                        "description": "Store not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You must create a store first"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Category name already exists"
+                        "description": "Category name already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category name already exists in your store"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -492,20 +847,48 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Category retrieved successfully"
+                        "description": "Category retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Unauthorized access"
+                        "description": "Unauthorized access",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized access to this category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Category not found"
+                        "description": "Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             },
             "put": {
                 "tags": [
@@ -544,16 +927,74 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Category updated successfully"
+                        "description": "Category updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Category not found"
+                        "description": "Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -580,16 +1021,68 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Category deleted successfully"
+                        "description": "Category deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Category not found"
+                        "description": "Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Category has products"
+                        "description": "Category has products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category cannot be deleted, it has associated products"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -641,318 +1134,6 @@
                         "description": "Customer not found"
                     }
                 }
-            },
-            "put": {
-                "tags": [
-                    "Customer"
-                ],
-                "summary": "Update a customer",
-                "operationId": "d939bbb1a5f718f7497816dbeff9477c",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Jane Doe"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jane@example.com"
-                                    },
-                                    "phone": {
-                                        "type": "string",
-                                        "example": "08123456789"
-                                    },
-                                    "address": {
-                                        "type": "string",
-                                        "example": "Jl. Anggrek No. 2"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Customer updated successfully"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    },
-                    "500": {
-                        "description": "Failed to update customer"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Customer"
-                ],
-                "summary": "Delete a customer",
-                "operationId": "f5b3da24dbfb3e9e7cfe5f98420160c6",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Customer deleted successfully"
-                    },
-                    "500": {
-                        "description": "Failed to delete customer"
-                    }
-                }
-            }
-        },
-        "/api/detail-transactions": {
-            "get": {
-                "tags": [
-                    "Detail Transactions"
-                ],
-                "summary": "Get all detail transactions (Admin only)",
-                "operationId": "9c1687f675014b8aacae056ff861a53a",
-                "responses": {
-                    "200": {
-                        "description": "List of detail transactions",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Detail Transactions"
-                ],
-                "summary": "Create a new detail transaction (Admin only)",
-                "operationId": "1922ba19ae1189f7702a9763e104cf27",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "transaction_id",
-                                    "product_id",
-                                    "quantity"
-                                ],
-                                "properties": {
-                                    "transaction_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "product_id": {
-                                        "type": "integer",
-                                        "example": 2
-                                    },
-                                    "quantity": {
-                                        "type": "integer",
-                                        "example": 3
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Detail transaction created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unauthorized"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/detail-transactions/{transaction_id}": {
-            "get": {
-                "tags": [
-                    "Detail Transactions"
-                ],
-                "summary": "Get details of a specific transaction (Admin only)",
-                "operationId": "747c18a8f5e92964cd5c8d04b0bfa188",
-                "parameters": [
-                    {
-                        "name": "transaction_id",
-                        "in": "path",
-                        "description": "Transaction ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detail transaction found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Transaction not found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/detail-transactions/{id}": {
-            "put": {
-                "tags": [
-                    "Detail Transactions"
-                ],
-                "summary": "Update a detail transaction quantity (Admin only)",
-                "operationId": "2aef912f0bb47e8d5de0eba43b56e573",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Detail transaction ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "quantity"
-                                ],
-                                "properties": {
-                                    "quantity": {
-                                        "type": "integer",
-                                        "example": 5
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Detail transaction updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unauthorized"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Detail Transactions"
-                ],
-                "summary": "Delete a detail transaction (Admin only)",
-                "operationId": "e6651629ea53c263fc342e3e631c9308",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Detail transaction ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detail transaction deleted",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Detail transaction deleted successfully"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Unauthorized"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
             }
         },
         "/api/products": {
@@ -964,7 +1145,17 @@
                 "operationId": "30c7b3299503ab1f87e3c50471bc019c",
                 "responses": {
                     "200": {
-                        "description": "List of products"
+                        "description": "List of all products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Product"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -988,15 +1179,15 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Laptop XYZ"
+                                        "example": "T-Shirt"
                                     },
                                     "price": {
                                         "type": "number",
-                                        "example": 2500000
+                                        "example": 120000
                                     },
                                     "stock": {
                                         "type": "integer",
-                                        "example": 10
+                                        "example": 20
                                     },
                                     "category_id": {
                                         "type": "integer",
@@ -1010,13 +1201,74 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Product created successfully"
+                        "description": "Product created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "You must create a store first"
+                        "description": "You must create a store first",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You must create a store first"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1045,10 +1297,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Product found"
+                        "description": "Product found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Product not found"
+                        "description": "Product not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -1056,7 +1328,7 @@
                 "tags": [
                     "Products"
                 ],
-                "summary": "Update product by ID",
+                "summary": "Update a product",
                 "operationId": "10cbb4a34deba32981a843920fd08643",
                 "parameters": [
                     {
@@ -1075,19 +1347,19 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Laptop Updated"
+                                        "example": "Updated Name"
                                     },
                                     "price": {
                                         "type": "number",
-                                        "example": 2700000
+                                        "example": 150000
                                     },
                                     "stock": {
                                         "type": "integer",
-                                        "example": 12
+                                        "example": 25
                                     },
                                     "category_id": {
                                         "type": "integer",
-                                        "example": 2
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -1097,13 +1369,90 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Product updated successfully"
+                        "description": "Product updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Product not found"
+                        "description": "Product not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1116,7 +1465,7 @@
                 "tags": [
                     "Products"
                 ],
-                "summary": "Delete product by ID",
+                "summary": "Delete a product",
                 "operationId": "06e6105dc4d319cdfc1abfa33da9586b",
                 "parameters": [
                     {
@@ -1130,13 +1479,68 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Product deleted successfully"
+                        "description": "Product deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "Unauthorized"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Product not found"
+                        "description": "Product not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1165,10 +1569,41 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Products found"
+                        "description": "Products found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "category_id": {
+                                            "type": "integer"
+                                        },
+                                        "products": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Product"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No products found"
+                        "description": "No products found for this category",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No products found for this category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1192,10 +1627,41 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Products found"
+                        "description": "Products found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "store_id": {
+                                            "type": "integer"
+                                        },
+                                        "products": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Product"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "No products found"
+                        "description": "No products found for this store",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No products found for this store"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1205,12 +1671,11 @@
                 "tags": [
                     "SalesReport"
                 ],
-                "summary": "Mendapatkan laporan penjualan berdasarkan store milik admin yang login",
-                "description": "Mengembalikan list produk beserta total quantity terjual dan total penjualan (dalam rupiah) untuk toko admin saat ini",
+                "summary": "Get sales report for the admin's store",
                 "operationId": "4e6c75d4bc3a30e82b54fedcb43676b8",
                 "responses": {
                     "200": {
-                        "description": "Berhasil mendapatkan laporan penjualan",
+                        "description": "Sales report retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1221,7 +1686,7 @@
                                         },
                                         "admin_id": {
                                             "type": "integer",
-                                            "example": 10
+                                            "example": 3
                                         },
                                         "sales_report": {
                                             "type": "array",
@@ -1229,20 +1694,20 @@
                                                 "properties": {
                                                     "product_id": {
                                                         "type": "integer",
-                                                        "example": 101
+                                                        "example": 5
                                                     },
                                                     "product_name": {
                                                         "type": "string",
-                                                        "example": "Produk A"
+                                                        "example": "T-Shirt"
                                                     },
                                                     "total_quantity": {
                                                         "type": "integer",
-                                                        "example": 50
+                                                        "example": 30
                                                     },
                                                     "total_sales": {
                                                         "type": "number",
                                                         "format": "float",
-                                                        "example": 1500000
+                                                        "example": 360000
                                                     }
                                                 },
                                                 "type": "object"
@@ -1255,30 +1720,14 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized, token tidak valid atau tidak login",
+                        "description": "Unauthorized",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Unauthenticated"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Kesalahan server internal",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Internal Server Error"
+                                            "example": "Unauthenticated."
                                         }
                                     },
                                     "type": "object"
@@ -1295,6 +1744,41 @@
             }
         },
         "/api/stores": {
+            "get": {
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Get all stores",
+                "operationId": "43e70874bb7e3452bec71726f9fb18eb",
+                "responses": {
+                    "200": {
+                        "description": "Stores retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Stores retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Store"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 10
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "put": {
                 "tags": [
                     "Stores"
@@ -1334,7 +1818,7 @@
                                             "example": "Store updated successfully"
                                         },
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/Store"
                                         }
                                     },
                                     "type": "object"
@@ -1361,7 +1845,7 @@
                 },
                 "security": [
                     {
-                        "bearerAuth": []
+                        "sanctum": []
                     }
                 ]
             },
@@ -1388,6 +1872,10 @@
                                     "description": {
                                         "type": "string",
                                         "example": "This is my new store"
+                                    },
+                                    "admin_id": {
+                                        "type": "integer",
+                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -1407,7 +1895,7 @@
                                             "example": "Store created successfully"
                                         },
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/Store"
                                         }
                                     },
                                     "type": "object"
@@ -1434,7 +1922,7 @@
                 },
                 "security": [
                     {
-                        "bearerAuth": []
+                        "sanctum": []
                     }
                 ]
             },
@@ -1480,7 +1968,7 @@
                 },
                 "security": [
                     {
-                        "bearerAuth": []
+                        "sanctum": []
                     }
                 ]
             }
@@ -1504,7 +1992,7 @@
                                             "example": "Store retrieved successfully"
                                         },
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/Store"
                                         }
                                     },
                                     "type": "object"
@@ -1531,7 +2019,7 @@
                 },
                 "security": [
                     {
-                        "bearerAuth": []
+                        "sanctum": []
                     }
                 ]
             }
@@ -1567,7 +2055,7 @@
                                             "example": "Store retrieved successfully"
                                         },
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/Store"
                                         }
                                     },
                                     "type": "object"
@@ -1591,12 +2079,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                }
             }
         },
         "/api/transactions": {
@@ -1608,7 +2091,17 @@
                 "operationId": "7e07cc202ed677881195e1df63ca2991",
                 "responses": {
                     "200": {
-                        "description": "Daftar transaksi berhasil diambil"
+                        "description": "Daftar transaksi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1692,13 +2185,62 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Transaksi berhasil dibuat"
+                        "description": "Transaksi berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction created successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validasi gagal"
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Transaksi gagal"
+                        "description": "Transaksi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction failed"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Insufficient stock for product T-Shirt"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1727,10 +2269,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Berhasil mengambil detail transaksi"
+                        "description": "Berhasil mengambil detail transaksi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Transaksi tidak ditemukan"
+                        "description": "Transaksi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1783,13 +2345,55 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Status transaksi berhasil diperbarui"
+                        "description": "Status transaksi berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction status updated to paid"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validasi status gagal"
+                        "description": "Validasi status gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Transaksi tidak ditemukan"
+                        "description": "Transaksi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transaction not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1802,6 +2406,96 @@
     },
     "components": {
         "schemas": {
+            "Category": {
+                "title": "Category",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Fashion"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Kategori produk fashion",
+                        "nullable": true
+                    },
+                    "store_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-05T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-05T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "Product": {
+                "title": "Product",
+                "required": [
+                    "id",
+                    "name",
+                    "price",
+                    "stock",
+                    "category_id",
+                    "store_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "T-Shirt"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Kaos lengan pendek",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "example": 120000
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "category_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "store_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-05T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-05T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
             "Store": {
                 "properties": {
                     "id": {
@@ -1845,10 +2539,6 @@
     },
     "tags": [
         {
-            "name": "Products",
-            "description": "API untuk manajemen produk"
-        },
-        {
             "name": "SalesReport",
             "description": "API untuk laporan penjualan per toko admin"
         },
@@ -1857,28 +2547,20 @@
             "description": "API untuk manajemen transaksi customer"
         },
         {
-            "name": "Auth - Admin",
-            "description": "Auth - Admin"
-        },
-        {
             "name": "Admin",
             "description": "Admin"
-        },
-        {
-            "name": "Customer Auth",
-            "description": "Customer Auth"
-        },
-        {
-            "name": "Category",
-            "description": "Category"
         },
         {
             "name": "Customer",
             "description": "Customer"
         },
         {
-            "name": "Detail Transactions",
-            "description": "Detail Transactions"
+            "name": "Category",
+            "description": "Category"
+        },
+        {
+            "name": "Products",
+            "description": "Products"
         },
         {
             "name": "Stores",
